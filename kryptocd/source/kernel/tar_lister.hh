@@ -1,7 +1,7 @@
 /*
  * tar_lister.hh: class TarLister header file
  * 
- * $Id: tar_lister.hh,v 1.1 2001/04/28 11:29:08 t-peters Exp $
+ * $Id: tar_lister.hh,v 1.2 2001/05/19 21:56:19 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -25,28 +25,32 @@
 #ifndef TAR_LISTER_HH
 #define TAR_LISTER_HH
 
-#include "childprocess.hh"
+#include "child_filter.hh"
 #include "thread.hh"
 #include <list>
 
 namespace KryptoCD {
+    class Source;
+    class Pipe;
+
     /**
-     * Class tarLister examines what files are present inside a tar archive.
-     * It works only if all file and path names inside the archive do not
+     * Class tarLister examines what files are present in a tar archive.
+     * It works only if all file and path names in the archive do not
      * contain newlines, backslashes and perhaps other funny characters (but
      * latin 1 characters 128-255 ?should? work).
      * 
      * The List is received from tar's stdout.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/04/28 11:29:08 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:56:19 $
      */
-    class TarLister : public Childprocess, public Thread {
+    class TarLister : public ChildFilter, public Thread {
         /**
          * Here we store the names of the listed files.
          */
         std::list<std::string> files;
-    
+        Pipe * listPipe;
+
     public:
         /**
          * Instanciation of an object of class TarLister causes
@@ -64,25 +68,19 @@ namespace KryptoCD {
          * The tar process will then create a tar archive containing the
          * given files.
          * <P>
-         * The archive will pour into tar through its stdin.
-         * If no file descriptor is specified to be used as tar's stdin, a pipe
-         * will be created and connected to tar's stdin. The datasink end of
-         * that pipe can be accessed using the getStdinPipeFd() method.
+         * tar receives the archive data through its stdin.
+         * The last argument to the constructor is unimportatnt to clients,
+         * and only needed internally.
          *
          * @param tarExecutable  A string containing the filesystem location of
          *                       the GNU tar executable.
-         * @param tarStdinFd     If a file descriptor for tar's stdin already
-         *                       exists, then specify it here.
+         * @param source         The source of the tar archive data.
          *                       The TarLister object will hand it over to the
-         *                       childprocess'es stdout *and* *will* *close* it
+         *                       childprocess'es stdin *and* *will* *close* it
          *                       inside this process.
-         *                       <p>
-         *                       You would normally want to use this
-         *                       possibility if you already created another
-         *                       that is sending a tar archive through a pipe.
          */
-        TarLister(const std::string & tarExecutable,
-                  int tarStdinFd = -1);
+        TarLister(const std::string & tarExecutable, Source & source,
+                  Pipe * = 0);
 
         /**
          * getFileList waits for the tar process and the reading thread to
@@ -107,7 +105,7 @@ namespace KryptoCD {
         /**
          * argumentList is called during the construction to build
          * a vector of command line arguments. These arguments are needed
-         * to initialize the parent class of TarListerr, Childprocess.
+         * to initialize the parent class of TarLister, ChildFilter
          *
          * @param tarExecutable  The location of the "tar" executable file.
          * @return               a vector of strings, the command line
@@ -116,25 +114,7 @@ namespace KryptoCD {
         static std::vector<std::string>
         argumentList(const std::string & tarExecutable);
 
-        /**
-         * similar to argumentList(), childToParentFdMap creates another
-         * object needed to initialize the parent class Childprocess:
-         * It decides if the TarLister wants to use an existing file descriptor
-         * for tar's stdin and creates an appropriate file descriptor map (see
-         * "childprocess.hh" for more info).
-         *
-         * @param tarStdoutFd An existing file descriptor that should be used
-         *                    as tar's stdout, or -1
-         * @return            a file descriptor map suitable for calling the
-         *                    Childprocess constructor with
-         */
-        static
-        map<int,int> childToParentFdMap(int tarStdoutFd);
 
-        /**
-         * is set to false during constructor, and to true after the extra
-         * thread finished reading the file list.
-         */
         bool threadFinished;
     };
 }
