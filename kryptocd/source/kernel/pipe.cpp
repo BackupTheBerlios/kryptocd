@@ -1,7 +1,7 @@
 /*
  * pipe.cpp: class Pipe header file
  * 
- * $Id: pipe.cpp,v 1.4 2001/05/02 21:46:30 t-peters Exp $
+ * $Id: pipe.cpp,v 1.5 2001/05/19 21:55:37 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -43,6 +43,8 @@ Pipe::Pipe() throw (Pipe::Exception) {
     sinkFd = fds[1];
     sourceOpen = true;
     sinkOpen = true;
+    closeSourceOnExec(true);
+    closeSinkOnExec(true);
 }
 
 // close one end of the line:
@@ -50,11 +52,10 @@ int
 Pipe::closeSource(void) {
     int retval = 0;
 
-    if (sourceOpen == false) {
-        return retval;
+    if (sourceOpen) {
+        retval = close (sourceFd);
+        sourceOpen = false;
     }
-    retval = close (sourceFd);
-    sourceOpen = false;
     return retval;
 }
 
@@ -62,11 +63,10 @@ int
 Pipe::closeSink(void) {
     int retval = 0;
 
-    if (sinkOpen == false) {
-        return retval;
+    if (sinkOpen) {
+        retval = close (sinkFd);
+        sinkOpen = false;
     }
-    retval = close (sinkFd);
-    sinkOpen = false;
     return retval;
 } 
 
@@ -76,33 +76,18 @@ Pipe::~Pipe() {
     closeSink();
 }
 
-int Pipe::getSourceFd(void) const {
-    if (sourceOpen == false) {
-        return -1;
-    }
-    return sourceFd;
+int Pipe::getSourceFd(void) {
+    return sourceOpen ? sourceFd : -1;
 }
 
-int Pipe::getSinkFd(void) const {
-    if (sinkOpen == true) {
-        return sinkFd;
-    }
-    return -1;
+int Pipe::getSinkFd(void) {
+    return sinkOpen ? sinkFd : -1;
 }
 
-
-void setCloseOnExecFlag (int fd) {
-    fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
+bool  Pipe::isSinkOpen(void) const {
+    return sinkOpen;
 }
 
-void clearCloseOnExecFlag(int fd) {
-    fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) & ~FD_CLOEXEC);
-}
-
-void Pipe::closeSourceOnExec(void) {
-    setCloseOnExecFlag(getSourceFd());
-}
-
-void Pipe::closeSinkOnExec(void) {
-    setCloseOnExecFlag(getSinkFd());
+bool Pipe::isSourceOpen(void) const {
+    return sourceOpen;
 }
