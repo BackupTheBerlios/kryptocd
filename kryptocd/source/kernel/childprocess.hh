@@ -1,7 +1,7 @@
 /*
  * childprocess.hh: class Childprocess header file
  * 
- * $Id: childprocess.hh,v 1.4 2001/05/19 21:54:04 t-peters Exp $
+ * $Id: childprocess.hh,v 1.5 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -41,7 +41,7 @@ namespace KryptoCD {
      * to exit.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.4 $ $Date: 2001/05/19 21:54:04 $
+     * @version $Revision: 1.5 $ $Date: 2001/05/20 19:41:57 $
      */
     class Childprocess {
     public:
@@ -84,7 +84,7 @@ namespace KryptoCD {
          *                        descriptor, or a file descriptor has to be
          *                        explicitly mapped to the child's stderr in
          *                        the childToParentFdMap
-         * @throw Childprocess::Exception
+         * @exception Childprocess::Exception
          *                        thrown when fork fails
          */
         Childprocess(const std::string & executableFile,

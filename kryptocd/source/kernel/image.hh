@@ -1,7 +1,7 @@
 /*
  * image.hh: class Image header file
  * 
- * $Id: image.hh,v 1.5 2001/05/20 16:02:55 t-peters Exp $
+ * $Id: image.hh,v 1.6 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -106,7 +106,7 @@ namespace KryptoCD {
      * Class Image assembles files for the burning process
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.5 $ $Date: 2001/05/20 16:02:55 $
+     * @version $Revision: 1.6 $ $Date: 2001/05/20 19:41:57 $
      */
     class Image {
     public:
@@ -188,7 +188,8 @@ namespace KryptoCD {
          * @param gpgExecutable     the location of the GNU privacy guard
          *                          executable file
          * @param mkisofsExecutable the location of the mkisofs executable file
-         * @throw Image::Exception  data member "reason" contains the reason
+         * @exception Image::Exception
+         *                          data member "reason" contains the reason
          *                          for this Exception:
          *                          <ul><li>
          *                          Image::Exception::UNABLE_TO_CREATE_SUBDIRECTORY
@@ -232,10 +233,12 @@ namespace KryptoCD {
          *                          when the compression is outside the range
          *                          [1,..,9]
          *                          </ul>
-         * @throw IoPump::Exception thrown when there is less hard disk space
+         * @exception IoPump::Exception
+         *                          thrown when there is less hard disk space
          *                          available than diskspace knows
-         * @throw Pipe::Exception   thrown when a pipe systemcall fails
-         * @throw Childprocess::Exception
+         * @exception Pipe::Exception
+         *                          thrown when a pipe systemcall fails
+         * @exception Childprocess::Exception
          *                          thrown when a fork system call fails
          */
         static Image* create(const std::string & imageId,
@@ -306,7 +309,8 @@ namespace KryptoCD {
          * @param gpgExecutable     the location of the GNU privacy guard
          *                          executable file
          * @param mkisofsExecutable the location of the mkisofs executable file
-         * @throw Image::Exception  data member "reason" contains the reason
+         * @exception Image::Exception
+         *                          data member "reason" contains the reason
          *                          for this Exception:
          *                          <ul><li>
          *                          Image::Exception::UNABLE_TO_CREATE_SUBDIRECTORY
@@ -396,7 +400,8 @@ namespace KryptoCD {
          * Called from constructor immediately after assigning all internal
          * parameters. Performs extensive checks on the data members.
          *
-         * @throw Image::Exception  data member "reason" contains the reason
+         * @exception Image::Exception
+         *                          data member "reason" contains the reason
          *                          for this Exception:
          *                          <ul><li>
          *                          Image::Exception::ARCHIVE_WOULD_BE_EMPTY

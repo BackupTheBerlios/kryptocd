@@ -1,7 +1,7 @@
 /*
  * fsource.hh: class FSource header file
  * 
- * $Id: fsource.hh,v 1.1 2001/05/19 22:11:35 t-peters Exp $
+ * $Id: fsource.hh,v 1.2 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -36,7 +36,7 @@ namespace KryptoCD {
      * Class FSource encapsulates a readable file
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/19 22:11:35 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/20 19:41:57 $
      */
     class FSource : public Source {
     public:
@@ -47,7 +47,7 @@ namespace KryptoCD {
          * @param file  the name of the file to open
          * @param flags the options passed to the open call. See the open(2)
          *              man page for details.
-         * @throw FSource::Exception
+         * @exception FSource::Exception
          *              the open(2) system call failed.
          */
         FSource(const std::string & filename,

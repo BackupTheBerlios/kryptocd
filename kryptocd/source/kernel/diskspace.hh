@@ -1,7 +1,7 @@
 /*
  * diskspace.hh: class Diskspace header file
  * 
- * $Id: diskspace.hh,v 1.2 2001/05/19 21:54:20 t-peters Exp $
+ * $Id: diskspace.hh,v 1.3 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -40,7 +40,7 @@ namespace KryptoCD {
      * approximately.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:54:20 $
+     * @version $Revision: 1.3 $ $Date: 2001/05/20 19:41:57 $
      */
     class Diskspace {
         /**
@@ -112,7 +112,7 @@ namespace KryptoCD {
          *                        application
          * @param usableMegabytes the total available harddisk space for this
          *                        application
-         * @throw Diskspace::Exception
+         * @exception Diskspace::Exception
          *                        the public data member reason is set to
          *                        Diskspace::Exception::NO_SPACE_AVAILABLE if
          *                        the parameter usableMegabytes is less than 1,

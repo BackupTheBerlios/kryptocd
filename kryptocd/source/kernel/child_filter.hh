@@ -1,7 +1,7 @@
 /*
  * child_filter.hh: class ChildFilter header file
  * 
- * $Id: child_filter.hh,v 1.1 2001/05/19 22:11:35 t-peters Exp $
+ * $Id: child_filter.hh,v 1.2 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -36,7 +36,7 @@ namespace KryptoCD {
      * ChildFilter creates a childprocess that acts as a filter for data.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date
+     * @version $Revision: 1.2 $ $Date
      */
     class ChildFilter : public Childprocess {
         
@@ -55,7 +55,7 @@ namespace KryptoCD {
          * @param  source         the data to be filtered comes from here
          * @param  sink           The destination for the data created by this
          *                        childprocess
-         * @throw Childprocess::Exception
+         * @exception Childprocess::Exception
          *                        thrown if the call to fork fails
          */
         ChildFilter(const std::string & executableFile,
@@ -97,7 +97,7 @@ namespace KryptoCD {
          *                        child. Will be connected to the child's file
          *                        descriptor number 3. Useful for sending a
          *                        password.
-         * @throw Childprocess::Exception
+         * @exception Childprocess::Exception
          *                        thrown if the call to fork fails
          */
         ChildFilter(const std::string & executableFile,

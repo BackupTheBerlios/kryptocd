@@ -1,7 +1,7 @@
 /*
  * io_pump.hh: class IoPump header file
  * 
- * $Id: io_pump.hh,v 1.2 2001/05/19 21:55:30 t-peters Exp $
+ * $Id: io_pump.hh,v 1.3 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -39,7 +39,7 @@ namespace KryptoCD {
      * Class IoPump does busy low level IO from a source to one or more sinks.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:55:30 $
+     * @version $Revision: 1.3 $ $Date: 2001/05/20 19:41:57 $
      */
     class IoPump {
     private:
@@ -84,7 +84,8 @@ namespace KryptoCD {
          * @param bytes the   number of bytes to copy. -1 means pump until EOF
          *                    on the sourceFd
          * @return            the number of bytes actually pumped
-         * @throw Exception   if one of the sink file descriptors refuses to
+         * @exception Exception
+         *                    if one of the sink file descriptors refuses to
          *                    accept data, then raise this exception.
          *                    Exception::notWritableFileDescriptor contains the
          *                    file descriptor responsible for this failing.

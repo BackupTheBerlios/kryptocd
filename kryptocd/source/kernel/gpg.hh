@@ -1,7 +1,7 @@
 /*
  * gpg.hh: class Gpg header file
  * 
- * $Id: gpg.hh,v 1.2 2001/05/19 21:54:36 t-peters Exp $
+ * $Id: gpg.hh,v 1.3 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -38,7 +38,7 @@ namespace KryptoCD {
      * Class Gpg encrypts or decrypts data, using a symmetric cipher.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:54:36 $
+     * @version $Revision: 1.3 $ $Date: 2001/05/20 19:41:57 $
      */
     class Gpg : public ChildFilter {
     public:
@@ -55,10 +55,10 @@ namespace KryptoCD {
          * @param source        the source of the data to encrypt or decrypt
          * @param sink          the destination of the encrypted or decrypted
          *                      data
-         * @throw Pipe::Exception
+         * @exception Pipe::Exception
          *                      the creation of the pipe for the password
          *                      transfer failed
-         * @throw Childprocess::Exception
+         * @exception Childprocess::Exception
          *                      the call to fork failed
          */
         Gpg(const std::string & gpgExecutable,

@@ -1,7 +1,7 @@
 /*
  * bzip2.hh: class Bzip2 header file
  * 
- * $Id: bzip2.hh,v 1.2 2001/05/19 21:53:46 t-peters Exp $
+ * $Id: bzip2.hh,v 1.3 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -35,7 +35,7 @@ namespace KryptoCD {
      * another one, using bzip2.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:53:46 $
+     * @version $Revision: 1.3 $ $Date: 2001/05/20 19:41:57 $
      */
     class Bzip2 : public ChildFilter {
     public:
@@ -59,7 +59,7 @@ namespace KryptoCD {
          *                         the compressed or decompressed data.
          *                         This sink will be closed within this
          *                         process.
-         * @throw Childprocess::Exception                   thrown
+         * @exception Childprocess::Exception                   thrown
          *                         when the fork system call fails
          */
         Bzip2(const std::string & bzip2Executable,

@@ -1,7 +1,7 @@
 /*
  * image_single_file.hh: class ImageSingleFile header file
  * 
- * $Id: image_single_file.hh,v 1.1 2001/05/20 16:03:40 t-peters Exp $
+ * $Id: image_single_file.hh,v 1.2 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -35,7 +35,7 @@ namespace KryptoCD {
      * file that contains the names of all files in the tar file.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/20 16:03:40 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/20 19:41:57 $
      */
     class ImageSingleFile : public Image {
     public:
@@ -88,7 +88,8 @@ namespace KryptoCD {
          * @param gpgExecutable     the location of the GNU privacy guard
          *                          executable file
          * @param mkisofsExecutable the location of the mkisofs executable file
-         * @throw Image::Exception  data member "reason" contains the reason
+         * @exception Image::Exception
+         *                          data member "reason" contains the reason
          *                          for this Exception:
          *                          <ul><li>
          *                          Image::Exception::UNABLE_TO_CREATE_SUBDIRECTORY
@@ -132,10 +133,12 @@ namespace KryptoCD {
          *                          when the compression is outside the range
          *                          [1,..,9]
          *                          </ul>
-         * @throw IoPump::Exception thrown when there is less hard disk space
+         * @exception IoPump::Exception
+         *                          thrown when there is less hard disk space
          *                          available than diskspace knows
-         * @throw Pipe::Exception   thrown when a pipe systemcall fails
-         * @throw Childprocess::Exception
+         * @exception Pipe::Exception
+         *                          thrown when a pipe systemcall fails
+         * @exception Childprocess::Exception
          *                          thrown when a fork system call fails
          */
         ImageSingleFile(const std::string & imageId,
@@ -178,7 +181,8 @@ namespace KryptoCD {
          * try to create the files needed for this Image. Called from
          * constructor
          *
-         * @throw Image::Exception  the Exception's data member "reason" is set
+         * @exception Image::Exception
+         *                          the Exception's data member "reason" is set
          *                          to Image::Exception::BAD_FILENAME. The
          *                          image object should remove bad filenames
          *                          containing "funny" characters from the
@@ -189,11 +193,13 @@ namespace KryptoCD {
          *                          it did not know better), and tar sees and
          *                          mangles that name, then this Exception will
          *                          be thrown.
-         * @throw IoPump::Exception thrown when there is less hard disk space
+         * @exception IoPump::Exception
+         *                          thrown when there is less hard disk space
          *                          available than diskspace knows, or the
          *                          directory is not writable
-         * @throw Pipe::Exception   thrown when a pipe systemcall fails
-         * @throw Childprocess::Exception
+         * @exception Pipe::Exception
+         *                          thrown when a pipe systemcall fails
+         * @exception Childprocess::Exception
          *                          thrown when a fork system call fails
          */
         void assembleImageData(void)
@@ -208,7 +214,8 @@ namespace KryptoCD {
          * permissions, and move those filenames from the "files" list to the
          * "rejectedForbiddenFiles" list. Called from assembleImageData
          *
-         * @throw Image::Exception  the Exception's data member "reason" is set
+         * @exception Image::Exception
+         *                          the Exception's data member "reason" is set
          *                          to Image::Exception::BAD_FILENAME. The
          *                          image object should remove bad filenames
          *                          containing "funny" characters from the
@@ -219,11 +226,13 @@ namespace KryptoCD {
          *                          it did not know better), and tar sees and
          *                          mangles that name, then this Exception will
          *                          be thrown.
-         * @throw IoPump::Exception thrown when there is less hard disk space
+         * @exception IoPump::Exception
+         *                          thrown when there is less hard disk space
          *                          available than diskspace knows, or the
          *                          directory is not writable
-         * @throw Pipe::Exception   thrown when a pipe systemcall fails
-         * @throw Childprocess::Exception
+         * @exception Pipe::Exception
+         *                          thrown when a pipe systemcall fails
+         * @exception Childprocess::Exception
          *                          thrown when a fork system call fails
          */
         void createTestArchiveAndExamineResult(void)
@@ -254,7 +263,7 @@ namespace KryptoCD {
          *                     disk space has been reserved. If set to true,
          *                     then the archive file is either complete, or
          *                     it was limited by the usable cd capacity.
-         * @throw IoPump::Exception
+         * @exception IoPump::Exception
          *                     thrown when there is less hard disk space
          *                     available than diskspace knows, or the
          *                     directory is not writable
@@ -284,7 +293,7 @@ namespace KryptoCD {
          *                       then the file with the last name in this list
          *                       will usually not be contained completely in
          *                       the archive.
-         * @throw Image::Exception
+         * @exception Image::Exception
          *                       the Exception's data member "reason" is set
          *                       to Image::Exception::BAD_FILENAME. The
          *                       image object should remove bad filenames

@@ -1,7 +1,7 @@
 /*
  * pipe.hh: class Pipe header file
  * 
- * $Id: pipe.hh,v 1.4 2001/05/19 21:55:45 t-peters Exp $
+ * $Id: pipe.hh,v 1.5 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -33,7 +33,7 @@ namespace KryptoCD {
      * Class Pipe encapsulates a call to pipe(2).
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.4 $ $Date: 2001/05/19 21:55:45 $
+     * @version $Revision: 1.5 $ $Date: 2001/05/20 19:41:57 $
      */
     class Pipe : public Sink, public Source {
     private:
@@ -67,7 +67,7 @@ namespace KryptoCD {
          * constructs the pipe file descriptors with a system call, and sets
          * their close-on-exec flag
          *
-         * @throws Pipe::Exception  if the systemcall pipe() fails
+         * @exception Pipe::Exception   if the systemcall pipe() fails
          */
         Pipe() throw(Exception);
 

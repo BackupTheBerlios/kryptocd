@@ -1,7 +1,7 @@
 /*
  * fsink.hh: class FSink header file
  * 
- * $Id: fsink.hh,v 1.1 2001/05/19 22:11:35 t-peters Exp $
+ * $Id: fsink.hh,v 1.2 2001/05/20 19:41:57 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -36,7 +36,7 @@ namespace KryptoCD {
      * Class FSink encapsulates a writable file
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/19 22:11:35 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/20 19:41:57 $
      */
     class FSink : public Sink {
     public:
@@ -49,7 +49,7 @@ namespace KryptoCD {
          *              man page for details.
          * @param mode  the file permissions to use. See the open(2)
          *              man page for details.
-         * @throw FSink::Exception
+         * @exception FSink::Exception
          *              the open(2) system call failed.
          */
         FSink(const std::string & filename,
