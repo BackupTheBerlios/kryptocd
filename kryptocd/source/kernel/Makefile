@@ -1,3 +1,5 @@
+# $Id: Makefile,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+
 CXXFLAGS=-g -DDEBUG
 
 all: test_encrypted_compressed_tar_archive

@@ -1,7 +1,7 @@
 /*
  * thread.hh: class Thread header file
  * 
- * $ID$
+ * $Id: thread.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -44,7 +44,7 @@ namespace KryptoCD {
      * this purpose.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/04/23 12:36:16 $
+     * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
      */
     class Thread {
     public:

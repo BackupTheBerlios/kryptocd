@@ -1,7 +1,7 @@
 /*
  * tar_creator.hh: class TarCreator header file
  * 
- * $ID$
+ * $Id: tar_creator.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -47,7 +47,7 @@ namespace KryptoCD {
      * The created archive is sent to tar's stdout.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/04/23 12:36:16 $
+     * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
      */
     class TarCreator : public Childprocess, public Thread {
         /**

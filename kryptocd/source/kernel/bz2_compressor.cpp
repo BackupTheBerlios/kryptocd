@@ -1,7 +1,7 @@
 /*
  * bz2_compressor.cpp: Implementation of class Bz2_Compressor
  * 
- * $ID$
+ * $Id: bz2_compressor.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters

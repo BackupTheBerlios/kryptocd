@@ -1,7 +1,7 @@
 /*
  * gpg_encryptor.hh: class GpgEncrypter header file
  * 
- * $ID$
+ * $Id: gpg_encrypter.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -34,7 +34,7 @@ namespace KryptoCD {
      * descriptor.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/04/23 12:36:16 $
+     * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
      */
     class GpgEncrypter : public Childprocess {
     public:

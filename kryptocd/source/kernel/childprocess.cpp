@@ -1,7 +1,7 @@
 /*
  * childprocess.cpp: class Childprocess implementation
  * 
- * $ID$
+ * $Id: childprocess.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters

@@ -1,4 +1,5 @@
 // test_encrypted_compressed_tar_archive.cpp
+// $Id: test_encrypted_compressed_tar_archive.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
 
 #include "tar_creator.hh"
 #include "bz2_compressor.hh"

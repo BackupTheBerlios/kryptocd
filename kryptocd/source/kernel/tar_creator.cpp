@@ -1,7 +1,7 @@
 /*
  * tar_creator.cpp: Implementation of class TarCompressor
  * 
- * $ID$
+ * $Id: tar_creator.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters

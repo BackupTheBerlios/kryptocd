@@ -1,7 +1,7 @@
 /*
  * thread.cpp: class Thread implementation
  * 
- * $ID$
+ * $Id: thread.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters

@@ -1,7 +1,7 @@
 /*
  * pipe.hh: class Pipe header file
  * 
- * $ID$
+ * $Id: pipe.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -30,7 +30,7 @@ namespace KryptoCD {
    * Class Pipe encapsulates a call to pipe(2), and not much more.
    *
    * @author  Tobias Peters
-   * @version $Revision: 1.1 $ $Date: 2001/04/23 12:36:16 $
+   * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
    */
   class Pipe {
   private:
