@@ -1,7 +1,7 @@
 /*
  * source.hh: class Source header file
  * 
- * $Id: source.hh,v 1.1 2001/05/19 22:11:35 t-peters Exp $
+ * $Id: source.hh,v 1.2 2001/06/03 14:04:32 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -30,7 +30,7 @@ namespace KryptoCD {
      * Class Source encapsulates a readable file descriptor
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/19 22:11:35 $
+     * @version $Revision: 1.2 $ $Date: 2001/06/03 14:04:32 $
      */
     class Source {
     public:
@@ -61,7 +61,10 @@ namespace KryptoCD {
         /**
          * set the close-on-exec flag of this source's file descriptor. May
          * only be called when this source is open.
-         *FIXME: explain close-on-exec flag!
+         * This "close-on-exec" flag modifies the behaviour when executing
+         * other programs as child processes: Open file descriptors in this
+         * process will remain open in the child process, unless they have
+         * their close-on-exec flag activated.
          *
          * @param newFlagValue  "true" activates the close-on-exec flag,
          *                      "false" deactivates it

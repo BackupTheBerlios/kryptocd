@@ -1,7 +1,7 @@
 /*
  * sink.hh: class Sink header file
  * 
- * $Id: sink.hh,v 1.1 2001/05/19 22:11:35 t-peters Exp $
+ * $Id: sink.hh,v 1.2 2001/06/03 14:04:32 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -30,7 +30,7 @@ namespace KryptoCD {
      * Class Sink encapsulates a file descriptor that can be written to.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/19 22:11:35 $
+     * @version $Revision: 1.2 $ $Date: 2001/06/03 14:04:32 $
      */
     class Sink {
     public:
@@ -61,7 +61,10 @@ namespace KryptoCD {
         /**
          * set the close-on-exec flag of this sink's file descriptor. May only
          * be called when this sink is open (as returned by "isSinkOpen()").
-         * FIXME: explain close-on-exec flag!
+         * This "close-on-exec" flag modifies the behaviour when executing
+         * other programs as child processes: Open file descriptors in this
+         * process will remain open in the child process, unless they have
+         * their close-on-exec flag activated.
          *
          * @param newFlagValue  "true" activates the close-on-exec flag,
          *                      "false" deactivates it
