@@ -1,7 +1,7 @@
 /*
  * childprocess.hh: class Childprocess header file
  * 
- * $Id: childprocess.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: childprocess.hh,v 1.3 2001/05/02 21:46:30 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -68,7 +68,7 @@ namespace KryptoCD {
      * to exit.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
+     * @version $Revision: 1.3 $ $Date: 2001/05/02 21:46:30 $
      */
     class Childprocess {
     public:
@@ -130,39 +130,34 @@ namespace KryptoCD {
          * @return true when the childprocess is still running, false when it
          *         has exited
          */
-        bool
-        isRunning(void);
+        bool isRunning(void);
 
         /**
          * Waits until the child process exits.
          *
          * @return the exit status of the child process.
          */
-        int
-        wait(void);
+        int wait(void);
 
         /*
          * Send a signal to the child process using kill().
          *
          * @return the return value of the kill system call
          */
-        int
-        sendSignal(int);
+        int sendSignal(int);
 
         /**
          *
          * @return the status bits from waitpid(..,int *status,..)
          */
-        int
-        getExitStatus (void) const;
+        int getExitStatus (void) const;
 
         /**
          *
          * @return true if the child exited with error code or was aborted by
          *         a signal.
          */
-        bool
-        exitedAbnormally (void);
+        bool exitedAbnormally (void);
 
         /**
          * Destructor sends SIGTERM and waits for the child to finish.
@@ -177,27 +172,24 @@ namespace KryptoCD {
          * @return the file descriptor of the other end of the stdin pipe if it
          * exists and was created by this object. Otherwise -1.
          */
-        int
-        getStdinPipeFd (void) const;
+        int getStdinPipeFd (void) const;
 
         /**
          *
          * @return the file descriptor of the other end of the stdout pipe if
          * it exists and was created by this object. Otherwise -1.
          */
-        int
-        getStdoutPipeFd (void) const;
+        int getStdoutPipeFd (void) const;
 
         /**
          * Closes the file descriptor of other end of the stdin pipe if it
          * exists and was created by this object. Prefer this function over
-         * close(get_stdin_pipe_fd()).
+         * close(getStdinPipeFd()).
          *
          * @return the return value of close, or -1 if no such pipe was
          * created by this object.
          */
-        int
-        closeStdinPipe();
+        int closeStdinPipe();
 
     private:
         /**

@@ -1,7 +1,7 @@
 /*
  * thread.cpp: class Thread implementation
  * 
- * $Id: thread.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: thread.cpp,v 1.3 2001/05/02 21:46:30 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -28,52 +28,52 @@
 using KryptoCD::Thread;
 
 Thread::Thread()
-  : threadStarted(false)
+    : threadStarted(false)
 {
-  mutex = new pthread_mutex_t;
-  pthread_mutex_init(mutex, 0);
+    mutex = new pthread_mutex_t;
+
+    /* pthread_mutex_t is a C language struct. Initialize it: */
+    pthread_mutex_init(mutex, 0);
 }
 
-Thread::~Thread()
-{
-  pthread_join(thread, 0);
+Thread::~Thread() {
+    /** the return value of a pthread_mutex_destroy call */
+    int mutexDestroyVal;
 
-  int mutexDestroyVal = pthread_mutex_destroy(mutex);
-  assert (mutexDestroyVal == 0);
-  delete (mutex);
+    pthread_join(thread, 0);
+    mutexDestroyVal = pthread_mutex_destroy(mutex);
+    assert (mutexDestroyVal == 0);
+    delete (mutex);
 }
 
-bool
-Thread::isStarted(void) const
-{
-  bool returnValue;
-  pthread_mutex_lock(mutex);
-  returnValue = threadStarted;
-  pthread_mutex_unlock(mutex);
-  return returnValue;
+bool Thread::isStarted(void) const {
+    bool returnValue;
+
+    pthread_mutex_lock(mutex);
+    returnValue = threadStarted;
+    pthread_mutex_unlock(mutex);
+    return returnValue;
 }
 
-int Thread::start()
-{
-  int success = pthread_mutex_trylock(mutex);
-  if (success==0) {
-    if (threadStarted) {
-      // Only start one thread
-      success = -1;
+int Thread::start() {
+    int success = pthread_mutex_trylock(mutex);
+
+    if (success==0) {
+        if (threadStarted) {
+            // Only start one thread
+            success = -1;
+        }
+        else {
+            success = pthread_create(&thread, 0, &Thread::startThread, this);
+            if (success == 0) {
+                threadStarted = true;
+            }
+        }
     }
-    else {
-      success = pthread_create(&thread, 0, &Thread::startThread, this);
-      if (success == 0) {
-        threadStarted = true;
-      }
-    }
-  }
-  pthread_mutex_unlock(mutex);
-  return success;
+    pthread_mutex_unlock(mutex);
+    return success;
 }
 
-void *
-Thread::startThread (void * threadObject)
-{
-  return reinterpret_cast<Thread *>(threadObject)->run();
+void * Thread::startThread (void * threadObject) {
+    return reinterpret_cast<Thread *>(threadObject)->run();
 }
