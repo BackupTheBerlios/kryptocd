@@ -1,7 +1,7 @@
 /*
  * io_pump.cpp: class IoPump implementation
  * 
- * $Id: io_pump.cpp,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: io_pump.cpp,v 1.2 2001/05/19 21:55:23 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -23,30 +23,25 @@
  */
 
 #include "io_pump.hh"
+#include "sink.hh"
+#include "source.hh"
 #include <unistd.h>
 
 using KryptoCD::IoPump;
 using std::vector;
 
-IoPump::IoPump(int sourceFd_, int sinkFd1, int sinkFd2, int sinkFd3)
-    : sourceFd(sourceFd_),
-      sourceOpen(true)
-{
-    if (sinkFd1 != -1) {
-        sinkFd.push_back(sinkFd1);
-        if (sinkFd2 != -1) {
-            sinkFd.push_back(sinkFd2);
-            if (sinkFd3 != -1) {
-                sinkFd.push_back(sinkFd3);
-            }
-        }
-    }
-}
+IoPump::IoPump(Source & source)
+    : sourceFd(source.getSourceFd()),
+      sourceOpen(source.isSourceOpen())
+{}
 
 long long IoPump::pump(long long bytesToPump) throw(Exception) {
     char buffer[IO_PUMP_BUFFER_SIZE];
     long long bytesPumped = 0;
 
+    if (bytesToPump == -1) {
+        bytesToPump = ((~(0ULL))>>1); //MAX long long
+    }
     if (sourceOpen == false) {
         return bytesPumped;
     }
@@ -73,10 +68,18 @@ long long IoPump::pump(long long bytesToPump) throw(Exception) {
                 int bytesWritten;
 
                 bytesWritten = write(*iter, buffer, bytesToWrite);
-                assert(bytesWritten > 0);
+                if (bytesWritten <= 0) {
+                    struct Exception exception = {*iter};
+                    throw exception;
+                }
                 bytesToWrite -= bytesWritten;
             }
         }
     }
     return bytesPumped;
+}
+
+void IoPump::addSink(Sink & sink)
+{
+    sinkFd.push_back(sink.getSinkFd());
 }
