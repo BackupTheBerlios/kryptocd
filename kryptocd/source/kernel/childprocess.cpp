@@ -1,7 +1,7 @@
 /*
  * childprocess.cpp: class Childprocess implementation
  * 
- * $Id: childprocess.cpp,v 1.4 2001/05/19 21:53:55 t-peters Exp $
+ * $Id: childprocess.cpp,v 1.5 2001/06/03 14:03:39 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -186,7 +186,7 @@ int Childprocess::sendSignal(int sig) {
     if (kill(pid, sig) == 0) {
         return 0;
     }
-    switch (errno) { // FIXME: How to access errno threadsafe?
+    switch (errno) { // errno should be threadsafe
     case EINVAL:
         // this is the caller's fault
         return -1;
