@@ -1,7 +1,7 @@
 /*
  * image_info.hh: class ImageInfo header file
  * 
- * $Id: image_info.hh,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: image_info.hh,v 1.2 2001/05/19 21:55:15 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -30,13 +30,38 @@
 
 namespace KryptoCD {
     /**
-     * Class ImageInfo keeps in memory what files have gone into which image
+     * Class ImageInfo remembers what files have gone into which image
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/02 21:47:38 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:55:15 $
      */
     class ImageInfo {
     public:
+        class Exception{};
+
+        /**
+         * Constructor
+         *
+         * @param imageId  the imageId of this cd, as passed to the constructor
+         *                 of class Image
+         * @param files    the names of the fales that actually went into this
+         *                 archive
+         */
+        ImageInfo(const std::string & imageId,
+                  const std::list<std::string> & files);
+
+        /**
+         * saves the current image info to an encrypted file. Filename is equal
+         * to imageId plus suffix ".gpg"
+         *
+         * @param directory  the directory where the file is stored
+         * @param password   the password for symmetric gpg encryption
+         */
+        void saveToFile(const string & gpgExecutable,
+                        const string & directory,
+                        const string & password)
+            throw(Exception);
+
         std::string imageId;
         std::list<std::string> files;
     };
