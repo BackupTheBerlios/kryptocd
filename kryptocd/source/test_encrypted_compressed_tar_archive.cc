@@ -25,7 +25,7 @@ int main(int argc, char ** argv)
                               files);
 
   KryptoCD::Bz2_Compressor * bz2 =
-    new KryptoCD::Bz2_Compressor("/usr/bin/bz2",
+    new KryptoCD::Bz2_Compressor("/usr/bin/bzip2",
                                  6, // compression rate
                                  tar->get_stdout_pipe_fd());
 
@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
   tar->wait();
   delete tar;
   tar = 0;
-
+   
   bz2->wait();
   delete bz2;
   bz2 = 0;
@@ -46,4 +46,5 @@ int main(int argc, char ** argv)
   gpg->wait();
   delete gpg;
   gpg = 0;
+
 }
