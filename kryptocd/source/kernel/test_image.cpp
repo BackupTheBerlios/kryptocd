@@ -1,6 +1,6 @@
 /* test_image.cpp: test program for class Image
  *
- * $Id: test_image.cpp,v 1.3 2001/05/19 21:56:35 t-peters Exp $
+ * $Id: test_image.cpp,v 1.4 2001/05/20 19:42:40 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -70,7 +70,8 @@ int main(int argc, char ** argv) {
     list<KryptoCD::Image*> images;
     while (!files.empty()) {
         ++i;
-        images.push_back(new KryptoCD::Image ("image_id" + unsignedToString(i),
+        images.push_back(KryptoCD::Image::create
+                                             ("image_id" + unsignedToString(i),
                                               "some_password",
                                               6, // compression level
                                               files,
@@ -80,7 +81,7 @@ int main(int argc, char ** argv) {
                                               imageInfos,
                                               ds,
                                               capacity,
-                                              KryptoCD::Image::SINGLE_TAR_FILE,
+                                              KryptoCD::Image::SINGLE_FILE,
                                               "/bin/tar",
                                               "/usr/bin/bzip2",
                                               "/usr/bin/gpg",
