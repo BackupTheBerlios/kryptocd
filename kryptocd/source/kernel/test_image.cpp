@@ -1,6 +1,6 @@
 /* test_image.cpp: test program for class Image
  *
- * $Id: test_image.cpp,v 1.4 2001/05/20 19:42:40 t-peters Exp $
+ * $Id: test_image.cpp,v 1.5 2001/05/21 11:49:23 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -46,10 +46,21 @@ static string unsignedToString(unsigned i) {
  * it expects the number of usable blocks on a cd, as reported by
  * "cdrecord -atip" in the line starting with "  ATIP start of lead out".
  * A block on a cd contains 2048 bytes of data. As the remaining command line
- * arguments, this programm expects filenames from which to create an archive.
- * A subset of these files will then go into the archive. depending on the
- * space available on cd. The new archive is encrypted with the password
- * "some_password" and stored in /tmp/kryptocd_test.tar.bz2.gpg
+ * arguments, this programm expects absolute filenames from which to create an
+ * archive.
+ * These files will then go into the archive. Depending on the
+ * space available on cd, they will be distributed over several cd's.
+ * The parts of the new archive are encrypted with the password
+ * "some_password" and stored in /tmp/imageId[1-9]/kryptocd_test.tar.bz2.gpg
+ * 
+ * A warning: The total hard disk space to use by this test program is limited
+ * to 700MB. In the real application, when all the available disk space is
+ * already in use, the assembling of new image data would
+ * be postponed until a cd is burned and the image data is erased from hard
+ * disk again. However, in this test program, image data will not be erased
+ * until the program exits. So you will run in a deadlock when you try to
+ * exceed the hard disk space limit. (Or you can increase the literal constant
+ * 700 in this source file).
  */
 int main(int argc, char ** argv) {
     assert (argc > 1);
