@@ -1,7 +1,7 @@
 /*
  * archive_creator.cpp: class ArchiveCreator implementation
  *
- * $Id: archive_creator.cpp,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: archive_creator.cpp,v 1.2 2001/05/19 21:52:56 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -25,6 +25,7 @@
 #include "tar_creator.hh"
 #include "bzip2.hh"
 #include "gpg.hh"
+#include "pipe.hh"
 
 using KryptoCD::ArchiveCreator;
 using KryptoCD::TarCreator;
@@ -33,28 +34,27 @@ using KryptoCD::Gpg;
 using std::string;
 using std::list;
 
-ArchiveCreator::ArchiveCreator(const std::string & tarExecutable,
-                               const std::string & bzip2Executable,
-                               const std::string & gpgExecutable,
-                               const std::list<std::string> & files,
+ArchiveCreator::ArchiveCreator(const string & tarExecutable,
+                               const string & bzip2Executable,
+                               const string & gpgExecutable,
+                               const list<string> & files,
                                int compression,
                                const string & password,
-                               int stdoutFd = -1) {
-    tarCreator      = new TarCreator(tarExecutable, files);
+                               Sink & sink) {
+    Pipe tarToBzip2;
+    Pipe Bzip2ToGpg;
+
+    tarCreator      = new TarCreator(tarExecutable, files, tarToBzip2);
     bzip2Compressor = new Bzip2(bzip2Executable, compression,
-                                tarCreator->getStdoutPipeFd());
+                                tarToBzip2, Bzip2ToGpg);
     gpgEncrypter    = new Gpg(gpgExecutable, password, Gpg::ENCRYPT,
-                              bzip2Compressor->getStdoutPipeFd(), stdoutFd);
+                              Bzip2ToGpg, sink);
 }
 
 ArchiveCreator::~ArchiveCreator() {
     delete tarCreator;
     delete bzip2Compressor;
     delete gpgEncrypter;
-}
-
-int ArchiveCreator::getStdoutPipeFd(void) const {
-    return gpgEncrypter->getStdoutPipeFd();
 }
 
 void ArchiveCreator::wait(void) {
