@@ -1,7 +1,7 @@
 /*
  * tar_creator.cpp: Implementation of class TarCompressor
  * 
- * $Id: tar_creator.cpp,v 1.3 2001/04/28 11:32:27 t-peters Exp $
+ * $Id: tar_creator.cpp,v 1.4 2001/05/02 21:46:44 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -38,18 +38,30 @@ TarCreator::TarCreator(const string & tarExecutable,
 
   : Childprocess(tarExecutable,
                  TarCreator::argumentList(tarExecutable),
-                 TarCreator::childToParentFdMap(tarStdoutFd)),
-    files(filesInit)
+                 TarCreator::childToParentFdMap(tarStdoutFd))
 {
     /*
      * prevent tar's stdin from being shared by other child processes
      * (it needs to be closed properly)
      */
     setCloseOnExecFlag(getStdinPipeFd());
+
+    /*
+     * The strings in this list will soon be read by a new thread. We need to
+     * make sure they do not share the same underlying representation of the
+     * character data. We think copying from the c_string does that job.
+     */
+    for (list<string>::const_iterator iter = filesInit.begin();
+         iter != filesInit.end();
+         ++iter) {
+        files.push_back(iter->c_str());
+    }
+
+    /* start the filename writing thread: */
     int success = start();
     assert(success == 0);
 }
-  
+
 vector<string> TarCreator::argumentList(const string & tarExecutable) {
     vector<string> argumentList;
 
@@ -83,7 +95,7 @@ void * TarCreator::run(void) {
         }
         tarStdin << flush;
     }
-    close(getStdinPipeFd());
+    closeStdinPipe();
     pthread_mutex_unlock(mutex);
     return this;
 }
