@@ -1,7 +1,7 @@
 /*
  * tar_creator.hh: class TarCreator header file
  * 
- * $Id: tar_creator.hh,v 1.4 2001/05/02 21:46:30 t-peters Exp $
+ * $Id: tar_creator.hh,v 1.5 2001/05/19 21:56:01 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -25,11 +25,14 @@
 #ifndef TAR_CREATOR_HH
 #define TAR_CREATOR_HH
 
-#include "childprocess.hh"
+#include "child_filter.hh"
 #include "thread.hh"
 #include <list>
 
 namespace KryptoCD {
+    class Sink;
+    class Pipe;
+
     /**
      * Class tarCreator creates a tar archive from a set of given files.
      * It uses the following tar archive options:
@@ -47,15 +50,16 @@ namespace KryptoCD {
      * The created archive is sent to tar's stdout.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.4 $ $Date: 2001/05/02 21:46:30 $
+     * @version $Revision: 1.5 $ $Date: 2001/05/19 21:56:01 $
      */
-    class TarCreator : public Childprocess, public Thread {
+    class TarCreator : public ChildFilter, public Thread {
         /**
          * Here we store the names of the files we want to put into the new
          * archive.
          */
         std::list<std::string> files;
-    
+        Pipe * listPipe;
+
     public:
         /**
          * Instanciation of an object of class TarCreator causes
@@ -72,35 +76,27 @@ namespace KryptoCD {
          * </ul>
          * The tar process will then create a tar archive containing the
          * given files.
-         * The archive will be output on tar's stdout, which is made available
-         * by this object through a pipe. Access the source file descriptor
-         * that is connected to tar's stdout using the getStdoutPipeFd()
-         * method.
+         * The archive will be output on tar's stdout, which is connected to
+         * the given Sink.
+         * The constructor's last argument is useless for clients, only needed
+         * internally.
          *
          * @param tarExecutable  A string containing the filesystem location of
          *                       the GNU tar executable.
          * @param files          A list of all filenames that should go into
          *                       the archive.
-         * @param tarStdoutFd    If a file descriptor for tar's stdout already
-         *                       exists, then specify it here.
-         *                       The TarCreator object will hand it over to the
-         *                       childprocess'es stdout *and* *will* *close* it
-         *                       inside this process.
-         *                       <p>
-         *                       You would want to use this possibility if you
-         *                       already opened a file to which the tar archive
-         *                       should go, or you opened a pipe that is
-         *                       connected to a filter that expects the tar
-         *                       archive.
+         * @param sink           the tar archive's destination. This sink will
+         *                       be closed inside this process.
          */
         TarCreator(const std::string & tarExecutable,
                    const std::list<std::string> & files,
-                   int tarStdoutFd = -1);
-    
+                   Sink & sink,
+                   Pipe * = 0);
+
     protected:
         /**
          * Method run() is executed by the new thread. It feeds a NUL separated
-         * list of filenames to tar's stdin and then closes its pipe end.
+         * list of filenames to tar's stdin and then closes its pipe.
          */
         virtual void * run(void);
 
@@ -108,29 +104,14 @@ namespace KryptoCD {
         /**
          * argumentList is called during the construction to build
          * a vector of command line arguments. These arguments are needed
-         * to initialize the parent class of TarCreator, Childprocess.
+         * to initialize the parent class of TarCreator, Childfilter.
          *
          * @param tarExecutable  The location of the "tar" executable file.
-         * @return a vector of strings, the command line arguments to execute
-         *         tar
+         * @return               a vector of strings, the command line
+         *                       arguments to execute tar
          */
         static std::vector<std::string>
         argumentList(const std::string & tarExecutable);
-
-        /**
-         * similar to argumentList(), childToParentFdMap creates another
-         * object needed to initialize the parent class Childprocess:
-         * It decides if the creator wants to use an existing file descriptor
-         * for tar's stdout and creates an appropriate file descriptor map (see
-         * "childprocess.hh" for more info).
-         *
-         * @param tarStdoutFd An existing file descriptor that should be used
-         *                    as tar's stdout, or -1
-         * @return            a file descriptor map suitable for calling the
-         *                    Childprocess constructor with
-         */
-        static
-        map<int,int> childToParentFdMap(int tarStdoutFd);
     };
 }
 
