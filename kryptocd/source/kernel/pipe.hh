@@ -1,7 +1,7 @@
 /*
  * pipe.hh: class Pipe header file
  * 
- * $Id: pipe.hh,v 1.3 2001/05/02 21:46:30 t-peters Exp $
+ * $Id: pipe.hh,v 1.4 2001/05/19 21:55:45 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -25,14 +25,17 @@
 #ifndef PIPE_HH
 #define PIPE_HH
 
+#include "sink.hh"
+#include "source.hh"
+
 namespace KryptoCD {
     /**
-     * Class Pipe encapsulates a call to pipe(2), and not much more.
+     * Class Pipe encapsulates a call to pipe(2).
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.3 $ $Date: 2001/05/02 21:46:30 $
+     * @version $Revision: 1.4 $ $Date: 2001/05/19 21:55:45 $
      */
-    class Pipe {
+    class Pipe : public Sink, public Source {
     private:
 
         /**
@@ -57,40 +60,34 @@ namespace KryptoCD {
          */
         bool sinkOpen;
 
-        // XXX
+    public:
         class Exception{};
 
-    public:
         /**
-         * constructs the pipe file descriptors with a system call
+         * constructs the pipe file descriptors with a system call, and sets
+         * their close-on-exec flag
          *
          * @throws Pipe::Exception  if the systemcall pipe() fails
          */
         Pipe() throw(Exception);
-  
+
         /**
-         * access the file descriptors:
-         * source is for reading from
+         * access the source file descriptor.
+         * Source is for reading from
          *
          * @return  -1 if the source file descriptor has been closed by this
          *          object, and if not, the number of that file descriptor.
-         *          If this file descriptor has been closed directly with
-         *          close outside this object, it will not know and still
-         *          return the now closed file descriptor.
          */
-        int getSourceFd(void)const;
+        virtual int getSourceFd(void);
 
         /**
-         * access the file descriptors:
-         * sink is for writing to
+         * access the sink file descriptor.
+         * Sink is for writing to
          *
          * @return  -1 if the sink file descriptor has been closed by this
-         *          object, and if not, the number of that file descriptor. If
-         *          this file descriptor has been closed directly with close
-         *          outside this object, it will not know and still return the
-         *          now closed file descriptor.
+         *          object, and if not, the number of that file descriptor.
          */
-        int getSinkFd(void)const;
+        virtual int getSinkFd(void);
 
         /**
          * close output part of the pipe
@@ -98,44 +95,34 @@ namespace KryptoCD {
          * @return  the return value of system call close(), or if close_source
          *          has been called a second time, 0.
          */
-        int closeSource(void);
+        virtual int closeSource(void);
 
         /**
          * close input part of the pipe
          *
-         * @return  the return value of system call close(), or if close_source has
-         *          been called a second time, 0.
+         * @return  the return value of system call close(), or if close_source
+         *          has been called a second time, 0.
          */
-        int closeSink(void);
+        virtual int closeSink(void);
 
         /**
-         * sets the file descriptor flag "close-on-exec" for the datasource file
-         * descriptor
+         * query whether the sink file descriptor is currently open
+         *
+         * @return  true if the sink is open, false if it has been closed
          */
-        void closeSourceOnExec(void);
+        virtual bool isSinkOpen(void) const;
 
         /**
-         * sets the file descriptor flag "close-on-exec" for the datasink file
-         * descriptor
+         * query whether the source file descriptor is currently open
+         *
+         * @return  true if the source is open, false if it has been closed
          */
-        void closeSinkOnExec(void);
+        virtual bool isSourceOpen(void) const;
 
         /**
-         * the destructor closes open FD's
+         * the destructor closes open file descriptors
          */
-        ~Pipe();
+        virtual ~Pipe();
     };
 }
-
-
-/**
- * sets the close-on-exec flag for any file descriptor
- */
-void setCloseOnExecFlag(int fd);
-
-/**
- * clears the close-on-exec flag for any file descriptor
- */
-void clearCloseOnExecFlag(int fd);
-
 #endif
