@@ -91,6 +91,12 @@ Gpg_Encrypter::child_to_parent_fd_map(int gpg_stdin_fd,
 
   child_to_parent_fd_map[4] = pipe->get_source_fd();
 
+  // Mark the file descriptor to which the password is written with the
+  // close-on-exec flag. Otherwise, this file descriptor would be shared
+  // by the gpg process itself and thus could not be closed from within this
+  // process.
+  pipe->close_sink_on_exec();
+
   return child_to_parent_fd_map;
 }
 
