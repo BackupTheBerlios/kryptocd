@@ -105,15 +105,22 @@ Childprocess::Childprocess
       // we need to copy the (parent) fd iter->second to the (child) fd
       // iter->first.
       // Be sure we do not close another needed fd by copying this one:
-      if (child_to_parent_fd_map.find(iter->second)
-          != child_to_parent_fd_map.end()) {
-        // We will need the current target fd too, so save it first:
-        map<int,int>::iterator iter_save =
-          child_to_parent_fd_map.find(iter->second);
-        iter_save->second = dup(iter_save->second);
-        if (iter_save->second == -1)
-          exit(-2);
-      }
+      map<int,int>::iterator iter_search = iter;
+      for (++iter_search;
+           iter_search != child_to_parent_fd_map.end();
+           ++iter_search) 
+        if (iter_search->second // the fd from which we will later make a copy
+            == iter->first) // the fd which will be closed by copying
+          {                 // iter->second to it.
+            // We will need the current target fd too, so move it out of the
+            // way first:
+            int fd_to_move_out_of_the_way = iter_search->second;
+            iter_search->second = dup(fd_to_move_out_of_the_way);
+            close(fd_to_move_out_of_the_way);
+            
+            if (iter_search->second == -1)
+              exit(-2);
+          }
 
       // now we can safely copy this fd:
       if (dup2(iter->second, iter->first) == -1)
@@ -125,7 +132,7 @@ Childprocess::Childprocess
       
       child_to_parent_fd_map.erase(iter);
     }
-  
+
     // now execing:
 #ifdef DEBUG
     cerr << "EXECUTING: " << executable_file << endl;
@@ -134,7 +141,6 @@ Childprocess::Childprocess
 #endif
     execv (executable_file.c_str(),
            const_cast<char *const *>(&argv[0]));
-      // FIXME: What is the c++ cast for this?
 
     // execing failed if this is still executed:
     exit(-2);
