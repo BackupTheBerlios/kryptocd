@@ -21,7 +21,7 @@
 
 /**
   * This class contains the information, which files the user
-  * wants how to backup.
+  * wants to backup in which way.
   * @author Malte Knoerr
   */
 
@@ -42,18 +42,18 @@ public:
   /**
     * Sets the files, which the user wants to encrypt and to backup.
     */
-  void setFiles(String files);
+  void setFiles(QString files);
 
   /**
     * Sets the file, as which the encrypted backup has to be saved.
     */
-  void setDestinationFile(String File);
+  void setDestinationFile(QString File);
 
   /**
     * Sets the GnuPG ID, for which the backup has to be encrypted.
     * This is usually the ID of the user himself.
     */
-  void setDestinationID(String file);
+  void setDestinationID(QString file);
 
   /**
     * Sets, wether the user wants compression of his backup.
@@ -74,18 +74,18 @@ private:
   /** 
     * The files, which the user wants to encrypt and to backup. 
     */
-  String files;
+  QString files;
   
   /** 
     * The file, as which the encrypted backup has to be saved. 
     */
-  String destinationFile;
+  QString destinationFile;
   
   /** 
     * The GnuPG ID, for which the backup has to be encrypted. 
     * This is usually the ID of the user himself.
     */
-  String destinationID;
+  QString destinationID;
 
   /**
     * Wants the user compression of his backup?
@@ -97,7 +97,7 @@ private:
   /**
     * Verify, if the provided GnuPG ID is valid.
     */
-  bool verifyID(String id);
+  bool verifyID(QString id);
 
 };
 
