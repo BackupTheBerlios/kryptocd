@@ -1,7 +1,7 @@
 /*
  * childprocess.hh: class Childprocess header file
  * 
- * $Id: childprocess.hh,v 1.3 2001/05/02 21:46:30 t-peters Exp $
+ * $Id: childprocess.hh,v 1.4 2001/05/19 21:54:04 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -26,7 +26,6 @@
 #define CHILDPROCESS_HH
 
 
-#include "pipe.hh"
 #include <vector>
 #include <set>
 #include <map>
@@ -35,72 +34,32 @@
 namespace KryptoCD {
 
     /**
-     * The class Childprocess forks and execs a child process. It usually
-     * creates pipes for communication between parent and child and dupes the
-     * pipe to stdin and stdout of the child process.
-     * <p>
-     * More precisely: If you dont tell the constructor to do something else,
-     * it will:
-     * <ul>
-     *   <li> Create a Pipe and dup the source part of the pipe to the child's
-     *        FD 0 (stdin).
-     *   <li> Create another pipe and dup the sink part of that pipe to the
-     *        child's FD 1 (stdout).
-     *   <li> Leave FD 2 (stderr) completely alone. This means the child will
-     *        share stderr with its parent.
-     * </ul>
-     * <p>
-     * Sometimes one may not want a new pipe to be created for stdin or stdout,
-     * for example when another child's stdout should be connected to the new
-     * child's stdin. One can then tell the childprocess object to use a
-     * particular file descriptor from the parent,and dup it to some particular
-     * child file descriptor. If the child file descriptor specified is 0 or 1,
-     * then no pipe to stdin or stdout will be created. Please note also that
-     * this file descriptor will be closed inside the parent process, which is
-     * what one normally wants.
-     *<p>
-     * Using this mechanism, one can also specify additional pipe channels to
-     * and from the child process, as needed for example by
-     * gpg --passphrase-fd=...
-     * <p>
-     * The parent process can ask for the file descriptors, and the state of
-     * the child. The destructor sends sigterm to the child and waits for it
+     * The class Childprocess forks and execs a child process. If pipes have
+     * been created to communicate with the child process, then their
+     * childprocess ends can be dup()ed to any file descriptor.
+     * The destructor sends sigterm to the child and waits for it
      * to exit.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.3 $ $Date: 2001/05/02 21:46:30 $
+     * @version $Revision: 1.4 $ $Date: 2001/05/19 21:54:04 $
      */
     class Childprocess {
     public:
-        /**
-         * An empty map. This is used as the default third argument to the
-         * constructor.
-         */
-        static const std::map<int,int> standardFdMap;
-
-        class Exception{};
+        class Exception{}; //XXX
 
         /**
          * The constructor forks and execs a child process.
          * <p>
-         * All file descriptors not mentioned in childToParentFdMap are left
-         * untouched and usually make
-         * their way into the child process. This may be undesirable. Set
-         * the close-on-exec flag of all file descriptors in your process that
-         * must not get into the child process. (Maybe we should change this
-         * behaviour).
+         * All file descriptors not mentioned in childToParentFdMap are closed
+         * after the fork call, while the close-on-exec flag is removed from
+         * all file descriptors that are mentioned.
          *
          * @param executableFile  The filename of the program to execute
-         *
          * @arg                   All command line arguments. Inclusion
          *                        of proper executable name as arg[0] is
          *                        mandatory.
-         *
-         * @param childToParentFdMap           When using the default, the
-         *                  childprocess object will create two pipes and
-         *                  connect the child's stdin and stdout as needed.
-         *                  <p>
-         *                  If a file descriptor that should be used as the
+         * @param childToParentFdMap  If a file descriptor that should be used
+         *                            as the
          *                  child's stdin or stdout has already been created,
          *                  then childToParentFdMap should contain a
          *                  pair<int,int>, the first member of this pair being
@@ -118,10 +77,20 @@ namespace KryptoCD {
          *                  <p>
          *                  This way, you can also specify other target file
          *                  descriptors apart from stdin (0) and stdout(1).
+         * @param shareStderr     determines whether the standard error file
+         *                        descriptor of this process will be shared by
+         *                        the child process. If not, then the child
+         *                        will either not have a stderr file
+         *                        descriptor, or a file descriptor has to be
+         *                        explicitly mapped to the child's stderr in
+         *                        the childToParentFdMap
+         * @throw Childprocess::Exception
+         *                        thrown when fork fails
          */
         Childprocess(const std::string & executableFile,
                      const std::vector<std::string> & arg,
-                     std::map<int,int> childToParentFdMap = standardFdMap)
+                     std::map<int,int> childToParentFdMap,
+                     bool shareStderr = true)
             throw(Exception);
 
         /**
@@ -147,15 +116,21 @@ namespace KryptoCD {
         int sendSignal(int);
 
         /**
+         * waitpid sets an integer with information about the child's exit
+         * status. This integer is retrieved here. See the waitpid(2) manpage
+         * for how to the interpret it
          *
-         * @return the status bits from waitpid(..,int *status,..)
+         * @return the status bits from waitpid(..,int *status,..). Only
+         *         meaningful if the child actually exited
          */
         int getExitStatus (void) const;
 
         /**
+         * checks the value returned by getExitStatus(), if the child exited
+         * because of a signal.
          *
          * @return true if the child exited with error code or was aborted by
-         *         a signal.
+         *         a signal. Only meaningful if the child actually exited
          */
         bool exitedAbnormally (void);
 
@@ -167,31 +142,14 @@ namespace KryptoCD {
          */
         virtual ~Childprocess();
 
-        /**
-         *
-         * @return the file descriptor of the other end of the stdin pipe if it
-         * exists and was created by this object. Otherwise -1.
-         */
-        int getStdinPipeFd (void) const;
-
-        /**
-         *
-         * @return the file descriptor of the other end of the stdout pipe if
-         * it exists and was created by this object. Otherwise -1.
-         */
-        int getStdoutPipeFd (void) const;
-
-        /**
-         * Closes the file descriptor of other end of the stdin pipe if it
-         * exists and was created by this object. Prefer this function over
-         * close(getStdinPipeFd()).
-         *
-         * @return the return value of close, or -1 if no such pipe was
-         * created by this object.
-         */
-        int closeStdinPipe();
-
     private:
+        /**
+         * a private copy constructor prevents objects of class Childprocess
+         * from being copied. This is only a declaration, we do not implement
+         * a copy constructor.
+         */
+        Childprocess(const Childprocess &);
+
         /**
          * Process ID of the child process
          */
@@ -204,29 +162,12 @@ namespace KryptoCD {
         int status;
 
         /**
-         * a pipe that this object creates to communicate with the child
-         * processes stdin
-         */
-        Pipe * stdinPipe;
-
-        /**
-         * a pipe that this object creates to communicate with the child
-         * processes stdout
-         */
-        Pipe * stdoutPipe;
-
-        /**
          * running will be set to true during constructor execution or the
          * constructor throws an exception.
          * If running is false after the object was successfully created,
          * then the child has exited.
          */
         bool running;
-
-        /**
-         * the argument vector, needed for the execv system call
-         */
-        vector<const char *> argv;
     };
 }
 #endif
