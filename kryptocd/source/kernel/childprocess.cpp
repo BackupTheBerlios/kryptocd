@@ -1,7 +1,7 @@
 /*
  * childprocess.cpp: class Childprocess implementation
  * 
- * $Id: childprocess.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: childprocess.cpp,v 1.3 2001/05/02 21:46:17 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -108,7 +108,8 @@ Childprocess::Childprocess(const string & executableFile,
             map<int,int>::iterator iter = childToParentFdMap.begin();
 
             if (iter->first == iter->second) {
-                // nothing to do
+                // nothing to do with this entry except to delete it
+                childToParentFdMap.erase(iter);
                 continue;
             }
 
