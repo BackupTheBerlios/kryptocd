@@ -1,7 +1,7 @@
 /*
  * tar_creator.cpp: Implementation of class TarCompressor
  * 
- * $Id: tar_creator.cpp,v 1.4 2001/05/02 21:46:44 t-peters Exp $
+ * $Id: tar_creator.cpp,v 1.5 2001/05/19 21:55:52 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -23,6 +23,7 @@
  */
 
 #include "tar_creator.hh"
+#include "pipe.hh"
 #include <fstream>
 #include <unistd.h>
 
@@ -34,22 +35,18 @@ using std::map;
 
 TarCreator::TarCreator(const string & tarExecutable,
                        const list<string> & filesInit,
-                       int tarStdoutFd = -1)
-
-  : Childprocess(tarExecutable,
-                 TarCreator::argumentList(tarExecutable),
-                 TarCreator::childToParentFdMap(tarStdoutFd))
+                       Sink & sink,
+                       Pipe * pipe = 0)
+  : ChildFilter(tarExecutable,
+                TarCreator::argumentList(tarExecutable),
+                *(pipe = new Pipe), sink)
 {
-    /*
-     * prevent tar's stdin from being shared by other child processes
-     * (it needs to be closed properly)
-     */
-    setCloseOnExecFlag(getStdinPipeFd());
+    listPipe = pipe;
 
     /*
      * The strings in this list will soon be read by a new thread. We need to
      * make sure they do not share the same underlying representation of the
-     * character data. We think copying from the c_string does that job.
+     * character data. Copying from the c_string does that job.
      */
     for (list<string>::const_iterator iter = filesInit.begin();
          iter != filesInit.end();
@@ -75,19 +72,10 @@ vector<string> TarCreator::argumentList(const string & tarExecutable) {
     return argumentList;
 }
 
-map<int,int> TarCreator::childToParentFdMap(int tarStdoutFd) {
-    map<int,int> childToParentFdMap;
-
-    if (tarStdoutFd != -1) {
-        childToParentFdMap[1]=tarStdoutFd;
-    }
-    return childToParentFdMap;
-}
-
 void * TarCreator::run(void) {
     pthread_mutex_lock(mutex);
     {
-        ofstream tarStdin(getStdinPipeFd());
+        ofstream tarStdin(listPipe->getSinkFd());
         for (list<string>::const_iterator iter = files.begin();
              iter != files.end();
              ++iter) {
@@ -95,7 +83,9 @@ void * TarCreator::run(void) {
         }
         tarStdin << flush;
     }
-    closeStdinPipe();
+    listPipe->closeSink();
+    delete listPipe;
+    listPipe = 0;
     pthread_mutex_unlock(mutex);
     return this;
 }
