@@ -1,7 +1,7 @@
 /*
- * image.cpp: class Image implementation
+ * image_single_file.cpp: class ImageSingleFile implementation
  * 
- * $Id: image_single_file.cpp,v 1.1 2001/05/20 16:03:41 t-peters Exp $
+ * $Id: image_single_file.cpp,v 1.2 2001/05/20 19:42:26 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
