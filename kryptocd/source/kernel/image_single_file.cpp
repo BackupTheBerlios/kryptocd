@@ -1,7 +1,7 @@
 /*
  * image_single_file.cpp: class ImageSingleFile implementation
  * 
- * $Id: image_single_file.cpp,v 1.2 2001/05/20 19:42:26 t-peters Exp $
+ * $Id: image_single_file.cpp,v 1.3 2001/06/03 14:04:19 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -87,8 +87,11 @@ ImageSingleFile::ImageSingleFile(const string & imageId_,
     archiveFileMaxSize =
         static_cast<long long>(imageMaxCdBlocks - CD_BLOCKS_FOR_ISO_STRUCTURE
                                - estimatedIndexFileBlocks) * CD_BLOCKSIZE;
-    // FIXME: throw Exception if    archiveFileMaxSize < 0
-    
+    if (archiveFileMaxSize < 1) {
+        /* Not enough space for IndexFile on CD */
+        throw Image::Exception(Image::Exception::CD_CAPACITY_TOO_SMALL);
+    }
+
     do {
         try {
             assembleImageData();
