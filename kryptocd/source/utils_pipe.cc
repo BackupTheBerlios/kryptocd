@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 
 using KryptoCD::Pipe;
 
@@ -91,4 +92,28 @@ Pipe::get_sink_fd(void) const
     return sink_FD;
   }
   return -1;
+}
+
+
+void
+set_close_on_exec_flag (int fd)
+{
+  fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
+}
+void
+clear_close_on_exec_flag(int fd)
+{
+  fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) & ~FD_CLOEXEC);
+}
+
+void
+Pipe::close_source_on_exec(void)
+{
+  set_close_on_exec_flag(get_source_fd());
+}
+
+void
+Pipe::close_sink_on_exec(void)
+{
+  set_close_on_exec_flag(get_sink_fd());
 }

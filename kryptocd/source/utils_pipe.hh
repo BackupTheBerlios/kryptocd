@@ -1,4 +1,4 @@
-// pipe.hh
+// utils_pipe.hh
 
 /* This file is part of KryptoCD
    (c) 1998 1999 2000 2001 Tobias Peters
@@ -41,13 +41,20 @@ namespace KryptoCD {
     // sink is for writing to
     int
     get_sink_fd(void)const;
-    
+
     // Close one end of the line:
     int
     close_source(void);
 
     int
     close_sink(void);
+
+
+    // Functions that set the file descriptor flag "close-on-exec":
+    void
+    close_source_on_exec(void);
+    void
+    close_sink_on_exec(void);
 
     // the destructor closes open FD's:
     ~Pipe();
@@ -60,5 +67,13 @@ namespace KryptoCD {
     bool source_open, sink_open;
   };
 }
+
+
+// Global functions for setting or clearing the close-on-exec flag for any
+// file descriptor:
+void
+set_close_on_exec_flag(int fd);
+void
+clear_close_on_exec_flag(int fd);
 
 #endif
