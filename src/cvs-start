@@ -1,5 +1,0 @@
-#/bin/sh
-echo "export CVS_RSH=ssh"
-echo "export CVSROOT=malte@cvs.berlios.de:/cvsroot/kryptocd"
-echo "cvs -dmalte@cvs.berlios.de:/cvsroot/kryptocd import src malte start"
-echo "cvs -dmalte@cvs.berlios.de:/cvsroot/kryptocd co src"

@@ -1,3 +1,0 @@
-GUI to create encrypted CDs for secure backups. This software doesn't include
-cryptographic software, the user must install GnuPG (http://www.gnupg.org/) to
-use it. This is a frontend to standard tools like tar, bzip2, gnupg and so on.
