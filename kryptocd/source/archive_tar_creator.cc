@@ -38,6 +38,10 @@ Tar_Creator::Tar_Creator(const string & tar_executable,
                  Tar_Creator::child_to_parent_fd_map(tar_stdout_fd)),
     files(files_)
 {
+  // prevent tar's stdin from being shared by other child processes
+  // (it needs to be closed properly)
+  set_close_on_exec_flag(get_stdin_pipe_fd());
+
   int success = start();
   assert(success == 0);
 }
@@ -69,6 +73,7 @@ void *
 Tar_Creator::run(void)
 {
   pthread_mutex_lock(mutex);
+
   {
     ofstream tar_stdin(get_stdin_pipe_fd());
     for (list<string>::const_iterator iter = files.begin();
