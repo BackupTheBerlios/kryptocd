@@ -1,0 +1,29 @@
+Select files and directories to backup,
+
+The user may choose files and full directories with a file selection dialog.
+Then he also chooses the backup method (We have two different backup methods,
+see Backup_method.txt). The user can save this selection of files and
+directories as a backup profile.
+
+Alternatively, the user can choose from previously generated backup profiles.
+The user will then also select a backup level.
+The computer will find all files and directories that have to go into this
+Backup then by itself.
+
+The user has to type in the passphrase to be used to encrypt the backup
+with a symmetrical cypher (gpg -c). The CD capacity can either be detected 
+automatically or typed in by the user.
+
+Backups will automatically span over several cd's in case the data does not
+fit on one cd. If, by the time when enough data is collected to start the cd
+writing process, a writable cd with enough capacity is detected in the cd
+writing device, then the cd writing is performed without requiring the user
+to sit next to the computer just to perform a mouse-click.
+
+Even if there was no suitable cd in the cd writing device at the time
+krypptocd first checked when a new image was ready, so that it asks the user
+to insert a writable cd, the newly inserted cd is detected and used for
+the next image even if the user does not press a key or mouse button
+(thus not requiring him to switch on the screen for just one mouse click).
+This requires periodic checks of the cd writing device.
+

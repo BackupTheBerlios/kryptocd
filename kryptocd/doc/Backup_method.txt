@@ -1,0 +1,33 @@
+KryptoCD provides two different methods for creating backups
+
+1st Method: Tarfile method
+--------------------------
+As many files as possible are put in a tar archiv, which is then compressed
+with bzip2 and encrypted with gpg -c. This method makes efficient use of the
+space available on the cds, and it is easy to restore the whole archive or
+selected files with command line tools.
+
+However this method is very sensitive to disk errors -- just one bad block
+(even one bad bit) on the cd will render all data stored after this block
+completely useless.  
+
+So, if you use this method, be sure to make full backups pretty often, and
+do not rely too much on incremental backups.
+
+2nd Method: Indexfile method
+----------------------------
+Each file going into the backup will be stored in a tar archiv of its own,
+which will then be compressed and encrypted as above. All of these
+single-file-archivs will be stored flat in the root directory of the cd,
+the file names will be index numbers, and there will be an encrypted index
+file which translates index numbers to filesystem names.
+Directories will be stored together in one single file which shows up on
+every disk of a multiple disk archive.
+
+
+----
+
+
+Both methods should probably provide index files so that the user easily
+knows which files are present on a backup, and on which disk.
+

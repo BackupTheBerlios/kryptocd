@@ -1,0 +1,12 @@
+Größenzuwachs einer .bz2-Datei durch Verschlüsselung mit gpg -c
+===============================================================
+
+Eine Testreihe ergab:
+[gpg] < [bz2]*1.00033 + 500
+
+=> mit Sicherheitsfaktor 2 wird lediglich angenommen:
+[gpg] < [bz2]*1.00066 + 1000
+
+Wenn die gpg-Datei höchstens [gpg max] gross sein darf, darf die bzip2-Datei
+also höchstens ([gpg max] - 1000) / 1.00066 gross sein.
+

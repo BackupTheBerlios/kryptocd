@@ -1,0 +1,27 @@
+Create backup
+	Select files and directories to backup,
+		Choose files manually, choose backup method
+		OR
+		Choose a backup profile and a backup level
+	Give Passphrase, CD capacity
+OR
+Configure cryptocd
+	Select temporary space for the cd image data,
+	 cd writing device parameters,
+	 directory for storing backup profile information
+	OR
+	Create, modify, delete backup profiles
+		Choose Files and Directories for Backups,
+		 choose backup method.
+OR
+Verify backup
+	Choose CD-Rom device, get asked for the backup cds,
+	 get a verification report.
+OR
+Use backup
+	Select files to restore
+		Choose CD-Rom device, get asked for the backup cds,
+		 choose from a list of files and directories
+	OR
+	You know what files to restore / Full restore
+		Choose CD-Rom device, get asked for the backup cds
