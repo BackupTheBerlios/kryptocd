@@ -1,12 +1,36 @@
-// test_encrypted_compressed_tar_archive.cpp
-// $Id: test_encrypted_compressed_tar_archive.cpp,v 1.4 2001/04/23 21:27:31 t-peters Exp $
+/* test_encrypted_compressed_tar_archive.cpp: test program for class
+ *                                            ArchiveCreator
+ *
+ * $Id: test_encrypted_compressed_tar_archive.cpp,v 1.5 2001/05/02 21:47:18 t-peters Exp $
+ *
+ * This file is part of KryptoCD
+ * (c) 2001 Tobias Peters
+ * see file COPYING for the copyright terms.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#include "tar_creator.hh"
-#include "bzip2.hh"
-#include "gpg.hh"
+#include "archive_creator.hh"
 #include <iostream>
 #include <fcntl.h>
 
+/**
+ * This is a test program for class ArchiveCreator. It expects filenames as
+ * command line arguments, and creates an encrypted, compressed tar archive from
+ * these files. The new archive is stored in /tmp/kryptocd_test.tar.bz2.gpg
+ */
 int main(int argc, char ** argv)
 {
     /* The archive file */
@@ -21,26 +45,11 @@ int main(int argc, char ** argv)
     for (int i = 1; i < argc; ++i) {
         files.push_back(argv[i]);
     }
-    KryptoCD::TarCreator * tar =
-        new KryptoCD::TarCreator("/bin/tar",
-                                 files);
-    KryptoCD::Bzip2 * bz2 =
-        new KryptoCD::Bzip2("/usr/bin/bzip2",
-                            6, // compression rate
-                            tar->getStdoutPipeFd());
-    KryptoCD::Gpg * gpg =
-        new KryptoCD::Gpg("/usr/bin/gpg", "some_password",
-                          KryptoCD::Gpg::ENCRYPT,
-                          bz2->getStdoutPipeFd(), outputFd);
-    tar->wait();
-    delete tar;
-    tar = 0;
 
-    bz2->wait();
-    delete bz2;
-    bz2 = 0;
-
-    gpg->wait();
-    delete gpg;
-    gpg = 0;
+    KryptoCD::ArchiveCreator * ac =
+        new KryptoCD::ArchiveCreator("/bin/tar", "/usr/bin/bzip2",
+                                     "/usr/bin/gpg", files, 6, "some_password",
+                                     outputFd);
+    ac->wait();
+    delete ac;
 }
