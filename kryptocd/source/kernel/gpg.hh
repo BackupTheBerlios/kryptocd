@@ -1,7 +1,7 @@
 /*
  * gpg.hh: class Gpg header file
  * 
- * $Id: gpg.hh,v 1.1 2001/04/23 21:21:54 t-peters Exp $
+ * $Id: gpg.hh,v 1.2 2001/05/19 21:54:36 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -25,47 +25,48 @@
 #ifndef GPG_HH
 #define GPG_HH
 
-#include "childprocess.hh"
+#include "child_filter.hh"
+#include "pipe.hh"
 #include <list>
 
 namespace KryptoCD {
+    class Source;
+    class Sink;
+    class Pipe;
+
     /**
-     * Class Gpg encrypts or decrypts the data pouring in through a file
-     * descriptor, using a symmetric cipher.
+     * Class Gpg encrypts or decrypts data, using a symmetric cipher.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/04/23 21:21:54 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:54:36 $
      */
-    class Gpg : public Childprocess {
+    class Gpg : public ChildFilter {
     public:
         enum Action {ENCRYPT, DECRYPT};
         /**
          * Starts a gpg childprocess that encrypts or decrypts data with a
-         * symmetric cipher.
+         * symmetric cipher. Do not use the last argument of this constructor.
+         *
          * @param gpgExecutable the filename of the gpg executable file
-         * @param password      the password to use for encryption or decryption
-         * @param action        decides wether to Gpg::ENCRYPT or to Gpg::DECRYPT
-         * @param gpgStdinFd    an existing file descriptor that will be
-         *                      used as gpg's stdin and closed inside this
-         *                      process.
-         *                      <p>
-         *                      if left unspecified, the Gpg object
-         *                      will create a pipe and make its datasink file
-         *                      descriptor acessible.
-         * @param gpgStdOutFd   an existing file descriptor that will be
-         *                      used as gpg's stdout and closed inside this
-         *                      process.
-         *                      <p>
-         *                      if left unspecified, the Gpg object
-         *                      will create a pipe and make its datasource file
-         *                      descriptor acessible.
+         * @param password      the password to use for encryption or
+         *                      decryption
+         * @param action        decides wether to Gpg::ENCRYPT or to
+         *                      Gpg::DECRYPT
+         * @param source        the source of the data to encrypt or decrypt
+         * @param sink          the destination of the encrypted or decrypted
+         *                      data
+         * @throw Pipe::Exception
+         *                      the creation of the pipe for the password
+         *                      transfer failed
+         * @throw Childprocess::Exception
+         *                      the call to fork failed
          */
         Gpg(const std::string & gpgExecutable,
             const std::string & password,
             Gpg::Action action,
-            int gpgStdinFd = -1,
-            int gpgStdoutFd = -1,
-            Pipe * = 0);
+            Source & source,
+            Sink & sink,
+            Pipe * = 0) throw (Pipe::Exception, Childprocess::Exception);
         /*
          * A fresh pipe is created and the password is transfered to
          * gpg through it.
@@ -74,7 +75,8 @@ namespace KryptoCD {
          */
 
         /**
-         * waits for gpg to finish execution
+         * the destructor does not waits for gpg to finish execution, it sends
+         * SIGTERM. This is because gpg sometimes reacts bad to EOF on stdin
          */
         virtual ~Gpg();
 
@@ -88,31 +90,6 @@ namespace KryptoCD {
          */
         static std::vector<std::string>
         argumentList(const std::string & gpgExecutable, Gpg::Action action);
-
-        /**
-         * childToParentFdMap creates a map<int,int> which is
-         * needed to initialize the parent class Childprocess:
-         * It decides if the Gpg object wants to use existing file descriptors
-         * for gpg's stdin and stdout and creates an appropriate file
-         * descriptor map (see "childprocess.hh" for more info).
-         *
-         * @param gpgStdinFd  an existing file descriptor that should be used
-         *                    as gpg's stdin, or -1
-         * @param gpgStdOutFd an existing file descriptor that should be used
-         *                    as gpg's stdout, or -1
-         * @param pipe        the pipe through which the password is sent to
-         *                    gpg
-         * @return            a file descriptor map suitable for calling the
-         *                    Childprocess constructor with
-         */
-        static map<int,int> childToParentFdMap(int gpgStdinFd,
-                                               int gpgStdoutFd,
-                                               Pipe * pipe);
-
-        /**
-         * the pipe through which the password is sent to gpg
-         */
-        Pipe * passwordPipe;
     };
 }
 
