@@ -1,7 +1,7 @@
 /*
  * archive_lister.cpp: class ArchiveLister implementation
  *
- * $Id: archive_lister.cpp,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: archive_lister.cpp,v 1.2 2001/05/19 21:53:15 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -26,6 +26,7 @@
 #include "tar_lister.hh"
 #include "bzip2.hh"
 #include "gpg.hh"
+#include "pipe.hh"
 
 using KryptoCD::ArchiveLister;
 using KryptoCD::TarLister;
@@ -38,15 +39,15 @@ ArchiveLister::ArchiveLister(const std::string & tarExecutable,
                              const std::string & bzip2Executable,
                              const std::string & gpgExecutable,
                              const string & password,
-                             int stdinFd = -1) {
-    gpgDecrypter  = new Gpg(gpgExecutable, password, Gpg::DECRYPT);
+                             Source & source) {
+    Pipe gpgToBzip2;
+    Pipe bzip2ToTar;
 
-    /* the gpgDecrypter's stdin pipe may not be shared by child processes: */
-    setCloseOnExecFlag(gpgDecrypter->getStdinPipeFd());
+    gpgDecrypter  = new Gpg(gpgExecutable, password, Gpg::DECRYPT,
+                            source, gpgToBzip2);
     bzip2Inflator = new Bzip2(bzip2Executable, -1, // -1 == decompress
-                              gpgDecrypter->getStdoutPipeFd());
-    tarLister     = new TarLister(tarExecutable,
-                                  bzip2Inflator->getStdoutPipeFd());
+                              gpgToBzip2, bzip2ToTar);
+    tarLister     = new TarLister(tarExecutable, bzip2ToTar);
 }
 
 ArchiveLister::~ArchiveLister() {
@@ -55,14 +56,6 @@ ArchiveLister::~ArchiveLister() {
     delete tarLister;
 }
 
-int ArchiveLister::getStdinPipeFd(void) const {
-    return gpgDecrypter->getStdinPipeFd();
-}
-
 const list<string> & ArchiveLister::getFileList() const {
     return tarLister->getFileList();
-}
-
-int ArchiveLister::closeStdinPipe() {
-    return gpgDecrypter->closeStdinPipe();
 }
