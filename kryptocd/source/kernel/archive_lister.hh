@@ -1,7 +1,7 @@
 /*
  * archive_lister.hh: class ArchiveLister header file
  *
- * $Id: archive_lister.hh,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: archive_lister.hh,v 1.2 2001/05/19 21:53:23 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -32,20 +32,21 @@ namespace KryptoCD {
     class TarLister;
     class Bzip2;
     class Gpg;
+    class Source;
 
     /**
      * Class ArchiveLister examines what files are contained in an encrypted
      * compressed tar archive.
      * It makes use of the classes TarLister, Bzip2, Gpg
-     * The archive is read from a file descriptor.
+     * The archive is read from the given Source.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/02 21:47:38 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:53:23 $
      */
     class ArchiveLister {
     public:
         /**
-         * The archive will be read from a file descriptor.
+         * The archive will be read from the given Source.
          *
          * @param tarExecutable   A string containing the filesystem location
          *                        of the GNU tar executable.
@@ -53,18 +54,16 @@ namespace KryptoCD {
          * @param gpgExecutable   the location of the GNU privacy guard
          *                        executable file
          * @param password       the password to use for decryption
-         * @param stdinFd        the file descriptor from which to read the
-         *                       archive. if left unspecified, a pipe will be
-         *                       created and made accessible through the method
-         *                       getStdinPipeFd
+         * @param source         the source from which to read the
+         *                       archive.
          */
         ArchiveLister(const std::string & tarExecutable,
                       const std::string & bzip2Executable,
                       const std::string & gpgExecutable,
                       const string & password,
-                      int stdinFd = -1);
+                      Source & source);
+
         ~ArchiveLister();
-        int getStdinPipeFd(void) const;
 
         /**
          * getFileList waits for the reader processes to
@@ -76,16 +75,6 @@ namespace KryptoCD {
          *         completely inside the archive.
          */
         const std::list<std::string> & getFileList() const;
-
-        /**
-         * Closes the file descriptor of other end of the stdin pipe of tar if
-         * it exists and was created by this object. Prefer this function over
-         * close(getStdinPipeFd()).
-         *
-         * @return the return value of close, or -1 if no such pipe was
-         * created by this object.
-         */
-        int closeStdinPipe();
 
     private:
         TarLister * tarLister;
