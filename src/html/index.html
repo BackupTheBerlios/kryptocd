@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-language" content="en">
+  <meta name="author" content="Malte Knoerr">
+  <meta name="description" content="Software for encrypted backups">
+  <meta name="keywords" content="backup, encrypted, encryption, secure, unix, linux">
+  <title>Krypto CD - Secure Backups</title> </head>
+<body bgcolor="#FFFFFF">
+
+
+<table>
+<tr>
+<td valign=top width="20%">
+<img src="img/spacer.png" alt="" width=1 height=77  border=0>
+<h1>&nbsp;</h1>
+
+<p><b>Contents</b></p>
+<p>Main</p>
+<p><a href="development.html">Development</a></p>
+
+</td>
+
+<td valign=top width="60%">
+<p><img src="img/logo.png" alt="KryptoCD" width=330 height=77 border=0></p>
+<h1>Secure Backups</h1>
+KryptoCDs purpose is to provide an easy way of making encrypted backups. It is
+a frontend for some standard GNU tools. KryptoCD itself doesn't contain any
+cryptographic software, you need to install
+<a href="http://www.gnupg.org">GnuPG</a>, which is a trustworthy encryption
+software.
+
+<h2>Why should I encrypt my backup?</h2>
+I presume, that you are using Unix. This is a quite secure operating system -
+other users can't read your files i.e. But if you make a backup for example on
+CD, everbody can take the CD, mount it and read your files. This breaks the
+security concept completely, so you should better encrypt your backups.
+
+<h2>How does KryptoCD work?</h2>
+KryptoCD works not at all - it's in the planning phase. It will use GnuPG to
+encrypt your backup. You will choose the files or directories to backup, and
+KryptoCD will then compress (tar, bzip2) and encrypt (gnupg) them. Afterwards
+will this encrypted backup be burned on CD (cdrecord).
+
+<h2>Where can I get KryptoCD</h2>
+KryptoCD is <a href="http://www.opensource.org">Open Source</a>. You will get
+it for free at
+<a href="http://developer.berlios.de/projects/kryptocd/">BerliOS</a>, when it
+is released. You will need KDE 2 to run KryptoCD.
+
+<br><br>
+<div align="center">
+<font size="-1">Last updated Fri Dec 22 19:34:31 2000<br>
+<a href="mailto:malte@knoerr.escape.de">Malte Kn&ouml;rr</a></font>
+
+<p>
+<a href="http://validator.w3.org/check/referer"><img border="0" src="img/valid-html40.png"  alt="Valid HTML 4.0!" height="31" width="88"></a>  </p>
+
+</div>
+</td>
+
+<td valign=top width="20%">
+<div align="right"><a href="index-de.html">Deutsch</a></div>
+</td>
+</tr>
+</table>
+
+</body> </html>
