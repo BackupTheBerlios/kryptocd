@@ -1,7 +1,7 @@
 /*
  * image.hh: class Image header file
  * 
- * $Id: image.hh,v 1.6 2001/05/20 19:41:57 t-peters Exp $
+ * $Id: image.hh,v 1.7 2001/06/03 14:05:32 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -53,60 +53,10 @@ namespace KryptoCD {
     const int CD_BLOCKS_FOR_ISO_STRUCTURE (40);
 
     /**
-     * Characters that tar does not handle adequately.
-     * FIXME: create this list dynamically, testing the installed tar.
-     * this list was created with the following ruby script:
-     *def touch_file(filename)
-     *  f = File.new(filename, "w")
-     *  f << filename
-     *  f.close()
-     *end
-     *
-     *filenames = []
-     *directory_name = "/tmp/"
-     *
-     *1.upto(255) {|i|
-     *  filenames << (directory_name + i.chr)
-     *}
-     *
-     *filenames.delete(directory_name + ".")
-     *filenames.delete(directory_name + "/")
-     *
-     *f = File.new(directory_name + "filenames", "w")
-     *
-     *filenames.each{ |fname|
-     *  touch_file(fname)
-     *  f << (fname + "\0")
-     *}
-     *f.close()
-     *
-     *system ("tar cf #{directory_name}tar --null --files-from=#{directory_name}filenames")
-     *dumped = []
-     *tar = IO.popen("tar tf #{directory_name}tar")
-     *tar.each_line{|i|dumped << ("/"+(i.chomp()))}
-     *tar.close()
-     *
-     *dumped.each{|f| filenames.delete(f)}
-     *
-     *filenames.each{|f|
-     *  last = (f[f.length() - 1]).hash()
-     *  last += 256 if (last < 0)
-     *  print(last,",")
-     *}
-     * Implement it in C++!
-     */
-    const char FORBIDDEN_FOR_TAR[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
-                                      17,18,19,20,21,22,23,24,25,26,27,28,29,
-                                      30,31,92,127,128,129,130,131,132,133,134,
-                                      135,136,137,138,139,140,141,142,143,144,
-                                      145,146,147,148,149,150,151,152,153,154,
-                                      155,156,157,158,159,160};
-    
-    /**
      * Class Image assembles files for the burning process
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.6 $ $Date: 2001/05/20 19:41:57 $
+     * @version $Revision: 1.7 $ $Date: 2001/06/03 14:05:32 $
      */
     class Image {
     public:
@@ -120,6 +70,7 @@ namespace KryptoCD {
                 BAD_IMAGE_ID,
                 BAD_PASSWORD,
                 BAD_COMPRESSION,
+                CD_CAPACITY_TOO_SMALL,
             } reason;
             string badFilename;
             Exception(Reason r) : reason(r){}
@@ -232,6 +183,11 @@ namespace KryptoCD {
          *                          Image::Exception::BAD_COMPRSSION is set
          *                          when the compression is outside the range
          *                          [1,..,9]
+         *                          <li>
+         *                          Image::Exception::CD_CAPACITY_TOO_SMALL is
+         *                          thrown when there is not enough room on the
+         *                          cd for an index file, not to mention the
+         *                          archives themselves
          *                          </ul>
          * @exception IoPump::Exception
          *                          thrown when there is less hard disk space
