@@ -1,7 +1,7 @@
 /*
  * thread.hh: class Thread header file
  * 
- * $Id: thread.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: thread.hh,v 1.3 2001/05/19 21:56:49 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -30,7 +30,7 @@
 namespace KryptoCD {
     /**
      * Thread is an abstract base class for thread management.
-     * The start method spawns a thread which executes the virtual
+     * The start method spawns a thread which executes the virtual (abstract)
      * method run. Overwrite run in a derived class!
      * <p>
      * The destructor performs a join, that is it waits until the
@@ -44,7 +44,7 @@ namespace KryptoCD {
      * this purpose.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
+     * @version $Revision: 1.3 $ $Date: 2001/05/19 21:56:49 $
      */
     class Thread {
     public:
@@ -66,7 +66,8 @@ namespace KryptoCD {
         int start();
 
         /**
-         * determine wether the thread has been startet.
+         * determine wether the thread has been started. Aquires the mutex
+         * to determine the value of data member threadStarted
          *
          * @return true if the thread has been started.
          */
