@@ -1,7 +1,7 @@
 /*
  * pipe.cpp: class Pipe header file
  * 
- * $Id: pipe.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: pipe.cpp,v 1.3 2001/04/23 15:23:35 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -120,5 +120,5 @@ Pipe::closeSourceOnExec(void)
 void
 Pipe::closeSinkOnExec(void)
 {
-  clearCloseOnExecFlag(getSinkFd());
+  setCloseOnExecFlag(getSinkFd());
 }
