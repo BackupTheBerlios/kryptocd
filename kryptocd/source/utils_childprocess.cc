@@ -94,14 +94,25 @@ Childprocess::Childprocess
     if (stdout_pipe)
       stdout_pipe->close_source();
     
-    // prepare to copy the fds:
-    set<int> used_child_fds;
-    if (child_to_parent_fd_map.find(2) == child_to_parent_fd_map.end())
-      used_child_fds.insert(2); // always share stderr
 
-    // copy the fds:
+    // The following may look complicated at a first glance.
+    // child_to_parent_fd_map contains pairs of file descriptor numbers:
+    // child_to_parent_fd_map[CHILD_FD] = PARENT_FD
+    // Here PARENT_FD is a currently existing filedescriptor that is needed
+    // by the child. However, the child expects this file descriptor to have
+    // the number CHILD_FD (for example, 0 for stdin).
+    // So we copy the file descriptor PARENT_FD to CHILD_FD.
+    // But wait, what if there is currently another file descriptor with
+    // number CHILD_FD in this process, that is also needed by the child at
+    // yet another fd number?
+    // We must search if this is the case, and if, prevent this file descriptor
+    // from being closed by dup2.
     while(child_to_parent_fd_map.size() > 0) {
       map<int,int>::iterator iter = child_to_parent_fd_map.begin();
+
+      if (iter->first == iter->second) // nothing to do
+        continue;
+      
       // we need to copy the (parent) fd iter->second to the (child) fd
       // iter->first.
       // Be sure we do not close another needed fd by copying this one:
@@ -151,6 +162,9 @@ Childprocess::Childprocess
     running = true;
 
     // close unused ends of the pipes:
+    // If this object created Pipes to the child's stdin and stdout,
+    // then close their copies in this process through their Pipe class
+    // methods (so that the Pipe object knows they are closed).
     if(stdin_pipe) {
       child_to_parent_fd_map.erase(0);
       stdin_pipe->close_source();
@@ -159,7 +173,9 @@ Childprocess::Childprocess
       child_to_parent_fd_map.erase(1);
       stdout_pipe->close_sink();
     }
-    
+
+    // Other file descriptors may be destined to the child too,
+    // close each of them inside this process.
     while(child_to_parent_fd_map.size() > 0) {
       close(child_to_parent_fd_map.begin()->second);
       child_to_parent_fd_map.erase(child_to_parent_fd_map.begin());
