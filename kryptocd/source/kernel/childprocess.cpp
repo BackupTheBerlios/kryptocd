@@ -1,7 +1,7 @@
 /*
  * childprocess.cpp: class Childprocess implementation
  * 
- * $Id: childprocess.cpp,v 1.3 2001/05/02 21:46:17 t-peters Exp $
+ * $Id: childprocess.cpp,v 1.4 2001/05/19 21:53:55 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 1998 1999 2000 2001 Tobias Peters
@@ -26,56 +26,32 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/param.h>
 #include <signal.h>
 #include <assert.h>
 #include <unistd.h> // for sleep()
 #include <errno.h>
+#include <fcntl.h>
 
 using KryptoCD::Childprocess;
 using std::map;
 using std::vector;
 using std::string;
 
-// The Standard FD Mappings (== none)
-const map<int,int> Childprocess::standardFdMap;
+static void clearCloseOnExecFlag(int fd) {
+    fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) & ~FD_CLOEXEC);
+}
 
 Childprocess::Childprocess(const string & executableFile,
                            const vector<string> & arg,
-                           map<int,int> childToParentFdMap)
+                           map<int,int> childToParentFdMap,
+                           bool shareStderr = true)
     throw(Childprocess::Exception)
     : pid (0),
       status (0),
-      stdinPipe(0),
-      stdoutPipe(0),
       running(false)
 {
     assert (executableFile != "");
-
-    for (vector<string>::const_iterator argIter = arg.begin();
-         argIter != arg.end();
-         ++argIter) {
-        argv.push_back(argIter->c_str());
-    }
-    argv.push_back((const char *)0);
-  
-    // Create the pipes for stdin and stdout if needed:
-    try {
-        if (childToParentFdMap.find(0) == childToParentFdMap.end()) {
-            // Create stdin pipe
-            stdinPipe = new Pipe();
-            childToParentFdMap[0] = stdinPipe->getSourceFd();
-        }
-        if (childToParentFdMap.find(1) == childToParentFdMap.end()) {
-            // Create stdin pipe
-            stdoutPipe = new Pipe();
-            childToParentFdMap[1] = stdoutPipe->getSinkFd();
-        }
-    }
-    catch(Pipe::Exception) {
-        delete stdinPipe;
-        delete stdoutPipe;
-        throw Exception();
-    }
 
     // forking:
     pid = fork();
@@ -83,14 +59,15 @@ Childprocess::Childprocess(const string & executableFile,
         throw Exception();
     }
     if (pid == 0) {
-        // close unused ends of the created pipes:
-        if (stdinPipe) {
-            stdinPipe->closeSink();
-        }
-        if (stdoutPipe) {
-            stdoutPipe->closeSource();
-        }
-        
+        /* In child code */
+
+        /* create the argument vector */
+        const char ** argv = new (const char*)[arg.size() + 1];
+        for (size_t i = 0; i < arg.size(); ++i) {
+            argv[i] = arg[i].c_str();       // allowed, these strings will
+        }                                   // not change until the exec call
+        argv[arg.size()] = 0;
+
         /*
          * childToParentFdMap contains pairs of file descriptor numbers:
          * childToParentFdMap[CHILD_FD] = PARENT_FD
@@ -104,52 +81,66 @@ Childprocess::Childprocess(const string & executableFile,
          * We must search if this is the case, and if, prevent this file
          * descriptor from being closed by dup2.
          */
-        while(childToParentFdMap.size() > 0) {
+        set<int> childFileDescriptors;     // A set containing all child fd's
+        while (!childToParentFdMap.empty()) {
             map<int,int>::iterator iter = childToParentFdMap.begin();
+            int childFd = iter->first;
+            int parentFd = iter->second;
 
-            if (iter->first == iter->second) {
-                // nothing to do with this entry except to delete it
-                childToParentFdMap.erase(iter);
-                continue;
-            }
 
-            /*
-             * we need to copy the (parent) fd iter->second to the (child) fd
-             * iter->first.
-             *
-             * Be sure we do not close another needed fd by copying this one:
-             */
-            map<int,int>::iterator iterSearch = iter;
-            for (++iterSearch;
-                 iterSearch != childToParentFdMap.end();
-                 ++iterSearch) 
-                if (iterSearch->second  // another fd to be used
-                    == iter->first)     // the fd to be closed now
-                    {
-                        /*
-                         * We will need the current target fd too, so move it
-                         * out of the way first:
-                         */
-                        int fdToMoveOutOfTheWay = iterSearch->second;
-                        
-                        iterSearch->second = dup(fdToMoveOutOfTheWay);
-                        close(fdToMoveOutOfTheWay);
-                        if (iterSearch->second == -1) {
-                            exit(-2);
+            if (childFd != parentFd) {
+                /*
+                 * we need to copy the (parent) fd iter->second to the (child)
+                 * fd iter->first.
+                 *
+                 * Be sure we do not close another needed fd by copying this
+                 * one
+                 */
+                map<int,int>::iterator iterSearch = iter;
+                for (++iterSearch;
+                     iterSearch != childToParentFdMap.end();
+                     ++iterSearch) {
+                    if (iterSearch->second  // another fd to be used
+                        == childFd)         // the fd to be closed now
+                        {
+                            /*
+                             * We will need the current target fd too, so move
+                             * it out of the way first:
+                             */
+                            int fdToMoveOutOfTheWay = iterSearch->second;
+
+                            iterSearch->second = dup(fdToMoveOutOfTheWay);
+                            close(fdToMoveOutOfTheWay);
+                            if (iterSearch->second == -1) {
+                                cerr << "dup failed after forking" << endl;
+                                exit(-2);
+                            }
                         }
-                    }
-
-            /* now we can safely copy this fd: */
-            if (dup2(iter->second, iter->first) == -1) {
-                exit(-2);
+                }
+                /* now we can safely copy this fd: */
+                if (dup2(parentFd, childFd) == -1) {
+                    cerr << "dup2 failed after forking" << endl;
+                    exit(-2);
+                }
+                close(parentFd);
             }
-            close(iter->second);
-
-            /*
-             * It is probably not necessary to modify the close-on-exec-flags
-             * of these fds
-             */
+            childFileDescriptors.insert(childFd);
+            clearCloseOnExecFlag(childFd);
             childToParentFdMap.erase(iter);
+        }
+
+        if (shareStderr) {
+            clearCloseOnExecFlag(STDERR_FILENO);
+            childFileDescriptors.insert(STDERR_FILENO);
+        }
+
+        /* closing all unknown file descriptors, not relying on close-on-exec */
+        for (int i = 0;
+             i < OPEN_MAX; // OPEN_MAX-1 is the highest possible file descriptor
+             ++i) {
+            if (childFileDescriptors.find(i) == childFileDescriptors.end()) {
+                close(i);
+            }
         }
 
         /* now execing: */
@@ -161,36 +152,28 @@ Childprocess::Childprocess(const string & executableFile,
         cerr << endl;
 #endif
         execv (executableFile.c_str(),
-               const_cast<char *const *>(&argv[0]));
+               const_cast<char *const *>(argv));
 
         /* execing failed if this is still executed: */
+        cerr << "Could not execute " << executableFile << endl;
         exit(-2);
     }
-
     else {
         /* pid != 0, in parent code */
         running = true;
 
         /*
-         * close unused ends of the pipes:
-         * If this object created Pipes to the child's stdin and stdout,
-         * then close their copies in this process through their Pipe class
-         * methods (so that the Pipe object knows they are closed).
+         * close all file descriptors that went into the child process except
+         * stderr
          */
-        if(stdinPipe) {
-            childToParentFdMap.erase(0);
-            stdinPipe->closeSource();
-        }
-        if(stdoutPipe) {
-            childToParentFdMap.erase(1);
-            stdoutPipe->closeSink();
-        }
+        while (!childToParentFdMap.empty()) {
+            map<int,int>::iterator iter = childToParentFdMap.begin();
+            int fd = iter->second;
 
-        // Other file descriptors may have moved to the child too,
-        // close each of them inside this process.
-        while(childToParentFdMap.size() > 0) {
-            close(childToParentFdMap.begin()->second);
-            childToParentFdMap.erase(childToParentFdMap.begin());
+            if (fd != 2) {
+                close(fd);
+            }
+            childToParentFdMap.erase(iter);
         }
     }
 }
@@ -203,7 +186,7 @@ int Childprocess::sendSignal(int sig) {
     if (kill(pid, sig) == 0) {
         return 0;
     }
-    switch (errno) {
+    switch (errno) { // FIXME: How to access errno threadsafe?
     case EINVAL:
         // this is the caller's fault
         return -1;
@@ -243,7 +226,7 @@ bool Childprocess::isRunning(void) {
     return running;
 }
 
-// Waits until the child process exits, returns its Exit statux.
+// Waits until the child process exits, returns its exit status.
 int Childprocess::wait(void) {
     if (isRunning()) {
         do {
@@ -282,27 +265,4 @@ Childprocess::~Childprocess() {
         sendSignal(SIGTERM);
         this->wait();
     }
-}
-
-// The communication handles:
-int Childprocess::getStdoutPipeFd (void) const {
-    return (stdoutPipe
-            ? stdoutPipe->getSourceFd()
-            : -1);
-}
-
-int Childprocess::getStdinPipeFd (void) const {
-    return (stdinPipe
-            ? stdinPipe->getSinkFd()
-            : -1);
-}
-
-int Childprocess::closeStdinPipe() {
-    if (stdinPipe) {
-        int returnValue = stdinPipe->closeSink();
-        delete stdinPipe;
-        stdinPipe = 0;
-        return returnValue;
-    }
-    return -1;
 }
