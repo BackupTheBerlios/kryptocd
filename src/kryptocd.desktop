@@ -1,0 +1,12 @@
+# KDE Config File  
+[KDE Desktop Entry]
+Type=Application
+Exec=kryptocd -caption "%c" %i %m  
+Icon=kryptocd.xpm
+MiniIcon=kryptocd.xpm
+DocPath=kryptocd/index.html
+Comment=
+Comment[de]=
+Terminal=0
+Name=KryptoCD
+Name[de]=KryptoCD
