@@ -1,7 +1,7 @@
 /*
  * diskspace.cc: class Diskspace implementation
  * 
- * $Id: diskspace.cpp,v 1.1 2001/04/25 14:26:52 t-peters Exp $
+ * $Id: diskspace.cpp,v 1.2 2001/05/19 21:54:12 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -23,25 +23,45 @@
  */
 
 #include "diskspace.hh"
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using KryptoCD::Diskspace;
 using std::string;
 
 Diskspace::Diskspace(const string & directory_,
                      int usableMegabytes_)
-    throw (Exception)
+    throw (Exception)      // FIXME: implement check for symlinks in directory_
     : directory(directory_),
       usableMegabytes(usableMegabytes_),
-      freeMegabytes(usableMegabytes_)
+      freeMegabytes(usableMegabytes_),
+      freeMegabytesMutex(new pthread_mutex_t),
+      freeMegabytesCondition(new pthread_cond_t)
 {
-    freeMegabytesMutex = new pthread_mutex_t();
+    assert(usableMegabytes > 0);
+    if (usableMegabytes <= 0) {
+        throw Exception(Exception::NO_SPACE_AVAILABLE);
+    }
+
+    /* Check if we can create a writable subdirectory in this directory: */
+    if ((mkdir((directory + "/" + DISKSPACE_TESTDIRECTORY).c_str(), 0700) != 0)
+        || (rmdir((directory + "/" + DISKSPACE_TESTDIRECTORY).c_str()) != 0)) {
+            throw Exception(Exception::DIRECTORY_ERROR);
+    }
+    
     pthread_mutex_init(freeMegabytesMutex, 0);
+    pthread_cond_init(freeMegabytesCondition, 0);
 }
 
 Diskspace::~Diskspace() {
-    int mutexDestroyVal = pthread_mutex_destroy(freeMegabytesMutex);
-    assert (mutexDestroyVal == 0);
+    int destroyVal = pthread_mutex_destroy(freeMegabytesMutex);
+    assert (destroyVal == 0);
     delete freeMegabytesMutex;
+    destroyVal = pthread_cond_destroy(freeMegabytesCondition);
+    assert (destroyVal == 0);
+    delete freeMegabytesCondition;
 }
 
 const std::string & Diskspace::getDirectory() const {
@@ -61,7 +81,12 @@ int Diskspace::getFreeMegabytes() const {
 }
 
 int Diskspace::allocate(int megabytes) {
+    assert(megabytes != 0);
+
     pthread_mutex_lock(freeMegabytesMutex);
+    while (freeMegabytes == 0) {
+        pthread_cond_wait(freeMegabytesCondition, freeMegabytesMutex);
+    }
     if (megabytes > freeMegabytes) {
         megabytes = freeMegabytes;
     }
@@ -71,8 +96,10 @@ int Diskspace::allocate(int megabytes) {
 }
 
 void Diskspace::release(int megabytes) {
+    assert(megabytes > 0);
     pthread_mutex_lock(freeMegabytesMutex);
     assert (megabytes + freeMegabytes <= usableMegabytes);
     freeMegabytes += megabytes;
+    pthread_cond_broadcast(freeMegabytesCondition);
     pthread_mutex_unlock(freeMegabytesMutex);
 }
