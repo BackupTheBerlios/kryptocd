@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2001/04/23 21:21:43 t-peters Exp $
+# $Id: Makefile,v 1.4 2001/04/23 21:26:00 t-peters Exp $
 
 CXXFLAGS=-g -DDEBUG
 
@@ -22,7 +22,7 @@ test_tar_creator.o: test_tar_creator.cpp \
 test_encrypted_compressed_tar_archive.o: \
  test_encrypted_compressed_tar_archive.cpp tar_creator.hh \
  childprocess.hh pipe.hh thread.hh \
- bz2_compressor.hh gpg.hh
+ bzip2.hh gpg.hh
 childprocess.o: childprocess.cpp childprocess.hh \
  pipe.hh
 pipe.o: pipe.cpp pipe.hh
