@@ -1,4 +1,4 @@
-CXXFLAGS=-g
+CXXFLAGS=-g -DDEBUG
 
 all: test_encrypted_compressed_tar_archive test_archive_tar_creator
 
