@@ -1,7 +1,7 @@
 /*
  * io_pump.hh: class IoPump header file
  * 
- * $Id: io_pump.hh,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: io_pump.hh,v 1.2 2001/05/19 21:55:30 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -32,11 +32,14 @@
 #include <vector>
 
 namespace KryptoCD {
+    class Source;
+    class Sink;
+
     /**
-     * Class IoPump does low level IO from one file decriptor to another.
+     * Class IoPump does busy low level IO from a source to one or more sinks.
      *
      * @author  Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/02 21:47:38 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:55:30 $
      */
     class IoPump {
     private:
@@ -64,18 +67,19 @@ namespace KryptoCD {
         /**
          * constructs the pump
          *
-         * @param sourceFd the file descriptor from which to read data
-         * @param sinkFd1  the file descriptor to which to write data. -1 means,
-         *                 only read data from the source, and delete it
-         *                 thereafter
-         * @param sinkFd2  if specified, a file descriptor to which to write a
-         *                 copy of the received data. Meaningless if sinkFd1==-1
-         * @param sinkFd3  as sinkFd2
+         * @param source  the Source object from which to read data
          */
-        IoPump(int sourceFd, int sinkFd1, int sinkFd2 = -1, int sinkFd3 = -1);
+        IoPump(Source & source);
 
         /**
-         * pump data from the sourceFd to all sinkFds
+         * add a sink
+         *
+         * @param sink the sink to add
+         */
+        void addSink(Sink & sink);
+        
+        /**
+         * pump data from the source to all sinks
          *
          * @param bytes the   number of bytes to copy. -1 means pump until EOF
          *                    on the sourceFd
