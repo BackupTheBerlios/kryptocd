@@ -1,6 +1,6 @@
 /* test_image.cpp: test program for class Image
  *
- * $Id: test_image.cpp,v 1.5 2001/05/21 11:49:23 t-peters Exp $
+ * $Id: test_image.cpp,v 1.6 2001/06/03 14:04:00 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -63,16 +63,28 @@ static string unsignedToString(unsigned i) {
  * 700 in this source file).
  */
 int main(int argc, char ** argv) {
+    std::string password = "some_password";
+
     assert (argc > 1);
     int capacity = atoi(argv[1]);
 
     /* a list of files to put into the archive */
     std::list<std::string> files, rejectedBigFiles;
     std::list<std::string> rejectedForbiddenFiles, rejectedBadNamedFiles;
-    
-    for (int i = 2; i < argc; ++i) {
-        files.push_back(argv[i]);
+
+    if (argc > 2) {
+        for (int i = 2; i < argc; ++i) {
+            files.push_back(argv[i]);
+        }
+    } else {
+        /* read filenames from stdin */
+        std::string filename;
+        getline(cin,password);
+        while (getline(cin, filename)) {
+            files.push_back(filename);
+        }
     }
+
 
     std::list<KryptoCD::ImageInfo> imageInfos;
     KryptoCD::Diskspace ds("/tmp", 700);
@@ -83,7 +95,7 @@ int main(int argc, char ** argv) {
         ++i;
         images.push_back(KryptoCD::Image::create
                                              ("image_id" + unsignedToString(i),
-                                              "some_password",
+                                              password,
                                               6, // compression level
                                               files,
                                               rejectedBigFiles,
@@ -175,6 +187,7 @@ int main(int argc, char ** argv) {
          << "Press <return> when you are finished, they will then be deleted "
          << "again." << endl;
     string line;
+ 
     getline(cin,line);
     while(!images.empty()) {
         delete images.front();
