@@ -1,7 +1,7 @@
 /*
  * archive_creator.hh: class ArchiveCreator header file
  *
- * $Id: archive_creator.hh,v 1.1 2001/05/02 21:47:38 t-peters Exp $
+ * $Id: archive_creator.hh,v 1.2 2001/05/19 21:53:09 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -32,47 +32,38 @@ namespace KryptoCD {
     class TarCreator;
     class Bzip2;
     class Gpg;
+    class Sink;
 
     /**
      * Class ArchiveCreator creates an encrypted compressed tar archive from a
-     * set of given files.
-     * It makes use of the classes TarCreator, Bzip2, Gpg
-     * The created archive is sent to a file descriptor.
+     * list of filenames.
+     * It uses the classes TarCreator, Bzip2, Gpg
+     * The created archive is sent to a Sink.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.1 $ $Date: 2001/05/02 21:47:38 $
+     * @version $Revision: 1.2 $ $Date: 2001/05/19 21:53:09 $
      */
     class ArchiveCreator {
     public:
         /**
-         * The archive will be output on a file descriptor.
+         * Create tar, bzip2 and gpg child processes.
+         * The encrypted, compressed tar archive will be sent to the given
+         * sink.
          *
          * @param tarExecutable   A string containing the filesystem location
          *                        of the GNU tar executable.
          * @param bzip2Executable the location of the bzip2 executable file
          * @param gpgExecutable   the location of the GNU privacy guard
          *                        executable file
-         * @param files          A list of all filenames that should go into
-         *                       the archive.
-         * @param compression    the level of compression that bzip2 will use
-         *                       when compressing data. Valid compression
-         *                       levels are 1,2,...,9. If the number given here
-         * @param password       the password to use for encryption
-         * @param stdoutFd       If a file descriptor for the archive already
-         *                       exists, then specify it here.
-         *                       The ArchiveCreator object will hand it over to
-         *                       gpg's stdout *and* *will*
-         *                       *close* it inside this process.
-         *                       <p>
-         *                       You would want to use this possibility if you
-         *                       already opened a file to which the archive
-         *                       should go, or you opened a pipe that is
-         *                       connected to a filter that expects the
-         *                       archive.
-         *                       If you do not specify a file descriptor here,
-         *                       a pipe will be created and the source side of
-         *                       that pipe is accessible through method
-         *                       getStdoutPipeFd
+         * @param files           A list of absolute filenames that should go
+         *                        into the archive.
+         * @param compression     the level of compression that bzip2 uses
+         *                        when compressing data. Valid compression
+         *                        levels are 1,2,...,9.
+         * @param password        the password to use for encryption
+         * @param sink            the sink where the archive is sent to. This
+         *                        constructor will call sink.closeSink() in
+         *                        this process.
          */
         ArchiveCreator(const std::string & tarExecutable,
                        const std::string & bzip2Executable,
@@ -80,11 +71,12 @@ namespace KryptoCD {
                        const std::list<std::string> & files,
                        int compression,
                        const string & password,
-                       int stdoutFd = -1);
+                       Sink & sink);
+
         ~ArchiveCreator();
-        int getStdoutPipeFd(void) const;
 
         void wait();
+
     private:
         TarCreator * tarCreator;
         Bzip2      * bzip2Compressor;
