@@ -1,7 +1,7 @@
 /* test_encrypted_compressed_tar_archive.cpp: test program for class
  *                                            ArchiveCreator
  *
- * $Id: test_encrypted_compressed_tar_archive.cpp,v 1.5 2001/05/02 21:47:18 t-peters Exp $
+ * $Id: test_encrypted_compressed_tar_archive.cpp,v 1.6 2001/05/19 21:56:28 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -23,6 +23,7 @@
  */
 
 #include "archive_creator.hh"
+#include "fsink.hh"
 #include <iostream>
 #include <fcntl.h>
 
@@ -34,10 +35,7 @@
 int main(int argc, char ** argv)
 {
     /* The archive file */
-    int outputFd =
-        open("/tmp/kryptocd_test.tar.bz2.gpg",
-             O_WRONLY|O_CREAT|O_TRUNC,
-             0644);
+    KryptoCD::FSink output("/tmp/kryptocd_test.tar.bz2.gpg");
 
     /* a list of files to put into the archive */
     std::list<std::string> files;
@@ -49,7 +47,7 @@ int main(int argc, char ** argv)
     KryptoCD::ArchiveCreator * ac =
         new KryptoCD::ArchiveCreator("/bin/tar", "/usr/bin/bzip2",
                                      "/usr/bin/gpg", files, 6, "some_password",
-                                     outputFd);
+                                     output);
     ac->wait();
     delete ac;
 }
