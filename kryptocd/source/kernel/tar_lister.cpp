@@ -1,7 +1,7 @@
 /*
  * tar_lister.cpp: class TarLister implementation
  * 
- * $Id: tar_lister.cpp,v 1.1 2001/04/28 11:29:08 t-peters Exp $
+ * $Id: tar_lister.cpp,v 1.2 2001/05/02 21:46:54 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -34,7 +34,6 @@ using std::map;
 
 TarLister::TarLister(const string & tarExecutable,
                      int tarStdinFd = -1)
-
   : Childprocess(tarExecutable,
                  TarLister::argumentList(tarExecutable),
                  TarLister::childToParentFdMap(tarStdinFd)),
@@ -76,14 +75,12 @@ void * TarLister::run(void) {
             files.push_back(filename);
         }
     }
-    close(getStdoutPipeFd());
     threadFinished=true;
     pthread_mutex_unlock(mutex);
     return this;
 }
 
-const list<string> & TarLister::getFileList()
-{
+const list<string> & TarLister::getFileList() {
     bool threadStillReading;
     
     wait();
