@@ -1,7 +1,7 @@
 /*
  * test_tar_lister.cpp: test program for class TarLister
  *
- * $Id: test_tar_lister.cpp,v 1.2 2001/05/02 21:47:27 t-peters Exp $
+ * $Id: test_tar_lister.cpp,v 1.3 2001/05/19 21:56:41 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -23,6 +23,7 @@
  */
 
 #include "tar_lister.hh"
+#include "fsource.hh"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -38,9 +39,9 @@ int main(int argc, char**argv) {
         return 1;
     }
 
-    int fd = open(argv[1], O_RDONLY);
+    KryptoCD::FSource source(argv[1]);
 
-    KryptoCD::TarLister * tar = new KryptoCD::TarLister("/bin/tar", fd);
+    KryptoCD::TarLister * tar = new KryptoCD::TarLister("/bin/tar", source);
 
     std::list<std::string> fileList = tar->getFileList();
 
