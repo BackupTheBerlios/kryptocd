@@ -1,7 +1,7 @@
 /*
- * gpg.cpp: Implementation of class GpgEncrypter
+ * gpg.cpp: Implementation of class Gpg
  * 
- * $Id: gpg.cpp,v 1.1 2001/04/23 21:21:54 t-peters Exp $
+ * $Id: gpg.cpp,v 1.2 2001/05/19 21:54:28 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -27,6 +27,9 @@
 #include <unistd.h>
 
 using KryptoCD::Gpg;
+using KryptoCD::Source;
+using KryptoCD::Sink;
+using KryptoCD::Pipe;
 using std::string;
 using std::list;
 using std::map;
@@ -37,35 +40,36 @@ using std::vector;
 // sequence constructs a new Pipe object and stores a pointer to it
 // in the forth of its own arguments (whose only purpose is to act
 // as a local variable to this constructor). This way we do not need
-// to bother the class user to create a pipe before creating a Gpg
-// opbject.
-Gpg::Gpg(const std::string & gpgExecutable,
+// to bother the class user to create a password pipe before creating
+// a Gpg object.
+Gpg::Gpg(const string & gpgExecutable,
          const string & password,
          Gpg::Action action,                
-         int gpgStdinFd = -1,
-         int gpgStdoutFd = -1,
-         KryptoCD::Pipe * pipe = 0)
-    : Childprocess(gpgExecutable,
-                   Gpg::argumentList(gpgExecutable, action),
-                   ((pipe = new KryptoCD::Pipe),
-                    Gpg::childToParentFdMap(gpgStdinFd, gpgStdoutFd, pipe))
-                   )
+         Source & source,
+         Sink & sink,
+         Pipe * passwordPipe = 0)
+    throw (Pipe::Exception, Childprocess::Exception)
+    : ChildFilter(gpgExecutable,
+                  Gpg::argumentList(gpgExecutable, action),
+                  source, sink,
+                  /* the pipe through which the password is sent to gpg: */
+                  *(passwordPipe = new Pipe))
 {
-    int bytesWritten = 0;
-  
-    passwordPipe = pipe;
+    size_t bytesWritten = 0;
+
     while (bytesWritten < password.length()) {
         int writeReturn = write(passwordPipe->getSinkFd(),
                                 password.c_str() + bytesWritten,
                                 password.length() - bytesWritten);
-        assert (writeReturn > 0);
-        bytesWritten -= writeReturn;
+        assert (writeReturn > 0); //XXX
+        bytesWritten += writeReturn;
     }
-    passwordPipe->closeSink();
+    passwordPipe->closeSink();    // gpg sees end of file
+    delete passwordPipe;
 }
 
 Gpg::~Gpg() {
-    delete passwordPipe;
+    //    this->wait();
 }
 
 vector<string> Gpg::argumentList(const string & gpgExecutable,
@@ -76,29 +80,7 @@ vector<string> Gpg::argumentList(const string & gpgExecutable,
     if (action == ENCRYPT) {
         argumentList.push_back("--symmetric");
     }
-    argumentList.push_back("--passphrase-fd=4");
+    argumentList.push_back("--passphrase-fd="
+                           + ChildFilter::CHILD_EXTRA_FILE_DESCRIPTOR_STRING);
     return argumentList;
 }
-
-map<int,int> Gpg::childToParentFdMap(int gpgStdinFd,
-                                     int gpgStdoutFd,
-                                     KryptoCD::Pipe * pipe) {
-    map<int,int> childToParentFdMap;
-    if (gpgStdinFd != -1) {
-        childToParentFdMap[0]=gpgStdinFd;
-    }
-    if (gpgStdoutFd != -1) {
-        childToParentFdMap[1]=gpgStdoutFd;
-    }
-    childToParentFdMap[4] = pipe->getSourceFd();
-
-    /*
-     * Mark the file descriptor to which the password is written with the
-     * close-on-exec flag. Otherwise, this file descriptor would be shared
-     * by the gpg process itself and thus could not be closed from within this
-     * process.
-     */
-    pipe->closeSinkOnExec();
-    return childToParentFdMap;
-}
-
