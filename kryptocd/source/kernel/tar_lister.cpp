@@ -1,7 +1,7 @@
 /*
  * tar_lister.cpp: class TarLister implementation
  * 
- * $Id: tar_lister.cpp,v 1.2 2001/05/02 21:46:54 t-peters Exp $
+ * $Id: tar_lister.cpp,v 1.3 2001/05/19 21:56:10 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -23,27 +23,25 @@
  */
 
 #include "tar_lister.hh"
+#include "pipe.hh"
 #include <fstream>
 #include <unistd.h>
 
 using KryptoCD::TarLister;
+using KryptoCD::Pipe;
+using KryptoCD::ChildFilter;
 using std::string;
 using std::list;
 using std::vector;
-using std::map;
 
 TarLister::TarLister(const string & tarExecutable,
-                     int tarStdinFd = -1)
-  : Childprocess(tarExecutable,
-                 TarLister::argumentList(tarExecutable),
-                 TarLister::childToParentFdMap(tarStdinFd)),
+                     Source & source, Pipe * pipe = 0)
+    : ChildFilter(tarExecutable,
+                  TarLister::argumentList(tarExecutable),
+                  source, *(pipe = new Pipe)),
     threadFinished(false)
 {
-    /*
-     * prevent tar's stdout from being shared by other child processes
-     * (not strictly needed)
-     */
-    setCloseOnExecFlag(getStdoutPipeFd());
+    listPipe = pipe;
     int success = start();
     assert(success == 0);
 }
@@ -57,24 +55,18 @@ vector<string> TarLister::argumentList(const string & tarExecutable) {
     return argumentList;
 }
 
-map<int,int> TarLister::childToParentFdMap(int tarStdinFd) {
-    map<int,int> childToParentFdMap;
-
-    if (tarStdinFd != -1) {
-        childToParentFdMap[0]=tarStdinFd;
-    }
-    return childToParentFdMap;
-}
-
 void * TarLister::run(void) {
     pthread_mutex_lock(mutex);
     {
-        ifstream tarStdout(getStdoutPipeFd());
+        ifstream tarStdout(listPipe->getSourceFd());
         string filename;
         while (getline(tarStdout, filename)) {
             files.push_back(filename);
         }
     }
+    listPipe->closeSource();
+    delete listPipe;
+    listPipe = 0;
     threadFinished=true;
     pthread_mutex_unlock(mutex);
     return this;
