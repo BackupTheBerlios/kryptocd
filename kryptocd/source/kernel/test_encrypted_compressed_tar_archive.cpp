@@ -1,9 +1,9 @@
 // test_encrypted_compressed_tar_archive.cpp
-// $Id: test_encrypted_compressed_tar_archive.cpp,v 1.3 2001/04/23 15:24:34 t-peters Exp $
+// $Id: test_encrypted_compressed_tar_archive.cpp,v 1.4 2001/04/23 21:27:31 t-peters Exp $
 
 #include "tar_creator.hh"
-#include "bz2_compressor.hh"
-#include "gpg_encrypter.hh"
+#include "bzip2.hh"
+#include "gpg.hh"
 #include <iostream>
 #include <fcntl.h>
 
@@ -24,15 +24,14 @@ int main(int argc, char ** argv)
     KryptoCD::TarCreator * tar =
         new KryptoCD::TarCreator("/bin/tar",
                                  files);
-    KryptoCD::Bz2Compressor * bz2 =
-        new KryptoCD::Bz2Compressor("/usr/bin/bzip2",
-                                    6, // compression rate
-                                    tar->getStdoutPipeFd());
-    KryptoCD::GpgEncrypter * gpg =
-        new KryptoCD::GpgEncrypter("/usr/bin/gpg",
-                                   "some_password",
-                                   bz2->getStdoutPipeFd(),
-                                   outputFd);
+    KryptoCD::Bzip2 * bz2 =
+        new KryptoCD::Bzip2("/usr/bin/bzip2",
+                            6, // compression rate
+                            tar->getStdoutPipeFd());
+    KryptoCD::Gpg * gpg =
+        new KryptoCD::Gpg("/usr/bin/gpg", "some_password",
+                          KryptoCD::Gpg::ENCRYPT,
+                          bz2->getStdoutPipeFd(), outputFd);
     tar->wait();
     delete tar;
     tar = 0;
