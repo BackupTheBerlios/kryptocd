@@ -1,7 +1,7 @@
 /*
  * tar_creator.hh: class TarCreator header file
  * 
- * $Id: tar_creator.hh,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: tar_creator.hh,v 1.3 2001/04/28 11:32:27 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -31,7 +31,7 @@
 
 namespace KryptoCD {
     /**
-     * Class tar_creator creates a tar archive from a set of given files.
+     * Class tarCreator creates a tar archive from a set of given files.
      * It uses the following tar archive options:
      * <dl>
      *   <dt> `--numeric-owner'
@@ -47,7 +47,7 @@ namespace KryptoCD {
      * The created archive is sent to tar's stdout.
      *
      * @author Tobias Peters
-     * @version $Revision: 1.2 $ $Date: 2001/04/23 12:48:20 $
+     * @version $Revision: 1.3 $ $Date: 2001/04/28 11:32:27 $
      */
     class TarCreator : public Childprocess, public Thread {
         /**
@@ -58,7 +58,7 @@ namespace KryptoCD {
     
     public:
         /**
-         * Instanciation of an object of class Tar_Creator causes
+         * Instanciation of an object of class TarCreator causes
          * <ul>
          *   <li> the spawning of a child process (tar) with the following
          *        command line:
@@ -74,7 +74,7 @@ namespace KryptoCD {
          * given files.
          * The archive will be output on tar's stdout, which is made available
          * by this object through a pipe. Access the source file descriptor
-         * that is connected to tar's stdout using the get_stdout_pipe_fd()
+         * that is connected to tar's stdout using the getStdoutPipeFd()
          * method.
          *
          * @param tarExecutable  A string containing the filesystem location of

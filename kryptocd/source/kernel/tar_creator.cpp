@@ -1,7 +1,7 @@
 /*
  * tar_creator.cpp: Implementation of class TarCompressor
  * 
- * $Id: tar_creator.cpp,v 1.2 2001/04/23 12:48:20 t-peters Exp $
+ * $Id: tar_creator.cpp,v 1.3 2001/04/28 11:32:27 t-peters Exp $
  *
  * This file is part of KryptoCD
  * (c) 2001 Tobias Peters
@@ -63,11 +63,11 @@ vector<string> TarCreator::argumentList(const string & tarExecutable) {
     return argumentList;
 }
 
-map<int,int> TarCreator::childToParentFdMap(int tar_stdout_fd) {
+map<int,int> TarCreator::childToParentFdMap(int tarStdoutFd) {
     map<int,int> childToParentFdMap;
 
-    if (tar_stdout_fd != -1) {
-        childToParentFdMap[1]=tar_stdout_fd;
+    if (tarStdoutFd != -1) {
+        childToParentFdMap[1]=tarStdoutFd;
     }
     return childToParentFdMap;
 }
